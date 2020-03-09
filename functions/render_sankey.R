@@ -37,7 +37,7 @@ render_sankey <- function(un_data_graph){
   return(onRender(sn, js_label_swap_side))
 }
 
-un_data_graph_to <- tail(un_data[year == '2017' & country_to_code == 250 & value > 0, .(country_to, country_from, value)][order(value)],20)
-un_data_graph_from <- tail(un_data[year == '2017' & country_from_code == 250 & value > 0, .(country_to, country_from, value)][order(value)],20)
+#un_data_graph_to <- tail(un_data[year == '2017' & country_to_code == 250 & value > 0, .(country_to, country_from, value)][order(value)],20)
+#un_data_graph_from <- tail(un_data[year == '2017' & country_from_code == 250 & value > 0, .(country_to, country_from, value)][order(value)],20)
 
-render_sankey(rbind(un_data_graph_from,un_data_graph_to))
+#render_sankey(rbind(un_data_graph_from,un_data_graph_to))

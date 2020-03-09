@@ -21,7 +21,7 @@ load_countries_polygons <- function(force_download = FALSE, force_format = FALSE
     unlink('./data/temp-polygons', recursive = TRUE)
   }
 
-  if(!file.exists('./data/polygons/countries_formatted.shp') | force_format | force_download){
+  if(force_format | force_download){
     # 2. Formatting polygons attributes -----------------------------------------------------------
     flog.info('Formatting polygons attributes')
     
@@ -38,5 +38,5 @@ load_countries_polygons <- function(force_download = FALSE, force_format = FALSE
   # 3. Reading formatted polygons -----------------------------------------------------------------
   flog.info('Reading formatted polygons')
   
-  return(readOGR(dsn=path.expand("./data/polygons/"), layer = 'countries_formatted'))
+  return(readOGR(dsn=path.expand("../data/polygons/"), layer = 'countries_formatted'))
 }

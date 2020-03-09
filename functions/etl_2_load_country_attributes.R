@@ -7,7 +7,7 @@ library(RColorBrewer)
 
 load_country_attributes <- function(force_download = FALSE, force_format = FALSE){
   
-  if(!file.exists('./data/UN_MigrantStockByOriginAndDestination_2019.xlsx') | force_download){
+  if(force_download){
     
     # 1 Downloading raw migration data ------------------------------------------------------------
     flog.info('Downloading raw migration data') 
@@ -17,7 +17,7 @@ load_country_attributes <- function(force_download = FALSE, force_format = FALSE
   }
   
   
-  if(!file.exists('./data/un_attributes.csv') | force_format | force_download){
+  if(force_format | force_download){
     # 2 Formatting raw attributes data -------------------------------------------------------------
     
     un_attr <- read_xlsx(path = './data/UN_MigrantStockByOriginAndDestination_2019.xlsx'
@@ -117,6 +117,6 @@ load_country_attributes <- function(force_download = FALSE, force_format = FALSE
   # 3 Read formatted data -----------------------------------------------------------------------
   flog.info('Read formatted data')
   
-  return(fread('./data/un_attributes.csv'))
+  return(fread('../data/un_attributes.csv'))
 }
 

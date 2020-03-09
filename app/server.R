@@ -7,34 +7,32 @@
 #    http://shiny.rstudio.com/
 #
 
+all_functions <- list.files('../functions/')
+sapply(file.path('../functions', all_functions), source)
 
 un_data <- fread('../data/un_migration.csv')
 un_attr <- fread('../data/un_attributes.csv')
 un_attr <- calculate_chord_max(un_attr, un_data_original=un_data)
 
-source('../render_chord2.R')
-
 
 server = function(input, output, session) {
+    
+    output$map <- renderLeaflet({
+        leaflet() %>% 
+            addTiles() %>%
+            addSearchOSM() %>%
+            addTiles(group = "OSM (default)") %>%
+            addProviderTiles("CartoDB.Positron", group = "CartoDB") %>%
+            addProviderTiles("GeoportailFrance.parcels", group = "Cadaster") %>%
+            addProviderTiles("Esri.WorldImagery", group = "Satellite")
+    })
     
     # Reactive expression for the data subsetted to what the user selected
     filtered_un_data_year <- reactive({
         un_data[year == input$year,]
     })
     
-    # reactive department to populate options in ui filter
-    sub_region_filter <- reactive({
-        input$select_chord_variable
-    })
-    
-    observeEvent(sub_region_filter(), {
-        if(sub_region_filter() == "Sub-region") {
-            enable("region_sub_region")
-            updateSelectInput(session, "region_sub_region", choices = unique(un_attr$region))
-        }
-    })
-    
-    output$regionChord <- renderPlot({
+    output$chord_diagram <- renderPlot({
         render_chord(un_data=filtered_un_data_year(), 
                      un_attr, 
                      variable=input$select_chord_variable)
@@ -46,7 +44,7 @@ server = function(input, output, session) {
         The unit of the scale for the vectors widths is in million people.
         <br><br>'
         })
-    output$index_notes <- renderText({'
+    output$chord_index_notes <- renderText({'
         <br>To know which countries are included in the indexes categories, check out the map layers.
         <br><br>
         <strong>Notes on the indexes</strong>

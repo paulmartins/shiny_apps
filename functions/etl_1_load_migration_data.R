@@ -6,7 +6,7 @@ library(futile.logger)
 
 load_migration_data <- function(force_download = FALSE, force_format = FALSE){
 
-  if(!file.exists(file.path(getwd(),'data/UN_MigrantStockByOriginAndDestination_2019.xlsx')) | force_download){
+  if(force_download){
     
     # 1 Downloading raw migration data ------------------------------------------------------------
     flog.info('Downloading raw migration data') 
@@ -16,7 +16,7 @@ load_migration_data <- function(force_download = FALSE, force_format = FALSE){
   }
   
   
-  if(!file.exists(file.path(getwd(),'data/un_migration.csv')) | force_format | force_download){
+  if(force_format | force_download){
     # 2 Formatting raw migration data -------------------------------------------------------------
     
     un_data <- read_xlsx(path = './data/UN_MigrantStockByOriginAndDestination_2019.xlsx'
@@ -79,6 +79,6 @@ load_migration_data <- function(force_download = FALSE, force_format = FALSE){
   # 3 Read formatted data -----------------------------------------------------------------------
   flog.info('Read formatted data')
   
-  return(fread('./data/un_migration.csv'))
+  return(fread('../data/un_migration.csv'))
 }
 

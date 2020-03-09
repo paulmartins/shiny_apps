@@ -8,7 +8,7 @@ library(gridBase)
 # un_attr <- load_country_attributes()
 # un_attr <- calculate_chord_max(un_attr, un_data_original=un_data)
 # un_data <- un_data[year == 2019]
-# render_chord(un_data, un_attr)
+# render_chord(un_data, un_attr) 
 
 
 render_chord <- function(un_data, un_attr, variable = 'Region'){
@@ -48,8 +48,8 @@ render_chord <- function(un_data, un_attr, variable = 'Region'){
   label_vp <- viewport(x=0.5, y=0 ,width=circle_size, height=0.2*circle_size, name="label", just = c("center", "bottom"))
   pushViewport(label_vp)
   lgd_points = Legend(at = metadata$order1, labels = metadata$var_from,
-                      labels_gp = gpar(fontsize = 12),
-                      title_gp = gpar(fontsize = 14, fontface = "bold"),
+                      labels_gp = gpar(fontsize = 12, col='#6B8594'),
+                      title_gp = gpar(fontsize = 14, fontface = "bold", col='#6B8594'),
                       title_gap = unit(3, "mm"),
                        legend_gp = gpar(fill = metadata$col1),
                        type = "grid", title_position = "topleft", 
@@ -82,7 +82,8 @@ circlize_plot <- function(plot_data_tibble, metadata){
   
   # add labels and axis
   circos.track(track.index = 1, bg.border = NA, panel.fun = function(x, y) {
-    circos.axis(h = "top", labels.cex = 0.8, labels.niceFacing = FALSE, labels.pos.adjust = FALSE)
+    circos.axis(h = "top", labels.cex = 0.8, labels.niceFacing = FALSE, labels.pos.adjust = FALSE, 
+                col = '#6B8594', labels.col = '#6B8594')
   })
 }
 

@@ -7,26 +7,11 @@ library(leaflet.extras)
 
 options(shiny.jquery.version=1)
 
-source('../gentelella_updates.R')
 
 ui = gentelellaPageCustom(
     title = "UN Migration Dashboard",
     navbar = gentelellaNavbar(
         navbarItems = list(
-            notif(
-                id = "menunotif",
-                icon = icon("envelope-o"),
-                status = "primary",
-                expanded = FALSE,
-                lapply(X = 1:5, FUN = function(i) {
-                    notifItem(
-                        title = "John Doe",
-                        date = "3 min ago",
-                        img = paste0("https://image.flaticon.com/icons/svg/163/16382", i,".svg"),
-                        "Film festivals used to be do-or-die moments"
-                        )
-                    })
-            ),
             notif(
                 id = "credits",
                 icon = icon("thumbs-up"),
@@ -77,10 +62,8 @@ ui = gentelellaPageCustom(
             tabItem(
                 tabName = "maps",
                 fluidRow(
-                    column(
-                        width = 8,
-                        #leafletOutput("map")
-                    )
+                    tags$style(type = "text/css", "#map {height: calc(100vh - 80px) !important;}"),
+                        leafletOutput("map")
                 )
             ),
             tabItem(
@@ -106,12 +89,12 @@ ui = gentelellaPageCustom(
                                             radioButtons(inputId='select_chord_variable', "Variable", inline = FALSE,
                                                          choices = c("Development index", "Income index", "Region"),
                                                          selected = 'Development index'),
-                                            htmlOutput(outputId='index_notes')
+                                            htmlOutput(outputId='chord_index_notes')
                                             ),
                                         column(
                                             width = 8,
                                             align = "left",
-                                            plotOutput("regionChord", height = 700)
+                                            plotOutput("chord_diagram", height = 700)
                                             )
                                         ),
                         shiny::tabPanel("Age and Gender", 
