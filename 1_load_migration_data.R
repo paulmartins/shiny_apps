@@ -6,12 +6,12 @@ library(futile.logger)
 
 load_migration_data <- function(force_download = FALSE, force_format = FALSE){
 
-  if(!file.exists(file.path(getwd(),'data/UN_MigrantStockByOriginAndDestination_2017.xlsx')) | force_download){
+  if(!file.exists(file.path(getwd(),'data/UN_MigrantStockByOriginAndDestination_2019.xlsx')) | force_download){
     
     # 1 Downloading raw migration data ------------------------------------------------------------
     flog.info('Downloading raw migration data') 
     
-    url <- 'https://www.un.org/en/development/desa/population/migration/data/estimates2/data/UN_MigrantStockByOriginAndDestination_2017.xlsx'
+    url <- 'https://www.un.org/en/development/desa/population/migration/data/estimates2/data/UN_MigrantStockByOriginAndDestination_2019.xlsx'
     download.file(url, './data')
   }
   
@@ -19,9 +19,9 @@ load_migration_data <- function(force_download = FALSE, force_format = FALSE){
   if(!file.exists(file.path(getwd(),'data/un_migration.csv')) | force_format | force_download){
     # 2 Formatting raw migration data -------------------------------------------------------------
     
-    un_data <- read_xlsx(path = './data/UN_MigrantStockByOriginAndDestination_2017.xlsx'
+    un_data <- read_xlsx(path = './data/UN_MigrantStockByOriginAndDestination_2019.xlsx'
                          ,sheet = 'Table 1'
-                         ,range = c('A16:IG1906'))
+                         ,range = c('A16:IG1997'))
     un_data <- setDT(as.data.frame(un_data))
     setnames(un_data
              ,old=c('...1', '...2', '...3', '...4', '...5', '...6')

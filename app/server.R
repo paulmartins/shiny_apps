@@ -10,37 +10,9 @@
 
 un_data <- fread('../data/un_migration.csv')
 un_attr <- fread('../data/un_attributes.csv')
+un_attr <- calculate_chord_max(un_attr, un_data_original=un_data)
 
-render_chord <- function(un_data, un_attr, variable = 'region', sub_region_filter=NULL){
-    variable <- tolower(gsub(pattern = '[\\s|-]', '_', variable, perl=TRUE))
-    
-    # merge variable from attribute into migration data
-    setkey(un_data, country_to_code)
-    setkey(un_attr, code)
-    un_data <- un_data[un_attr[,.(code, var_to=get(variable))]]
-    
-    setkey(un_data, country_from_code)
-    un_data <- un_data[un_attr[,.(code, var_from=get(variable))]]
-    
-    if(variable == 'sub_region'){
-        subregion_in_region <- unique(un_attr[region == sub_region_filter, sub_region])
-        plot_data <- un_data[var_to %in% subregion_in_region & var_from %in% subregion_in_region,.(value=sum(value, na.rm=TRUE)),.(var_to, var_from)][value >0]
-    } else{
-        plot_data <- un_data[,.(value=sum(value, na.rm=TRUE)),.(var_to, var_from)][value >0]
-    }
-    
-    plot_data <- dcast(plot_data, formula = var_to ~ var_from)
-    var_to <- plot_data$var_to
-    
-    plot_data[, var_to := NULL]
-    var_from <- names(plot_data)
-    
-    plot_matrix <- as.matrix(plot_data)
-    dimnames(plot_matrix) <- list(var_to = var_to, var_from = var_from)
-    
-    chorddiag(plot_matrix, groupnamePadding = 20, groupnameFontsize = 10, showTicks = FALSE, tooltipGroupConnector = " from ")
-    #groupColors=c('#8E44AD', '#27AE60', '#2980B9', '#F39C12', '#F1C40F', '#E74C3C')
-}
+source('../render_chord2.R')
 
 
 server = function(input, output, session) {
@@ -62,11 +34,30 @@ server = function(input, output, session) {
         }
     })
     
-    output$regionChord <- renderChorddiag({
-        render_chord(un_data=filtered_un_data_year(), un_attr, 
-                     variable=input$select_chord_variable, 
-                     sub_region_filter=input$region_sub_region)
+    output$regionChord <- renderPlot({
+        render_chord(un_data=filtered_un_data_year(), 
+                     un_attr, 
+                     variable=input$select_chord_variable)
     })
+    output$chord_title <- renderText({'
+        <h3>International population migration flows</h3>
+        <br>The chord diagram represents the international migration patterns as vectors from origin 
+        to destination by development index, income index or regions.
+        The unit of the scale for the vectors widths is in million people.
+        <br><br>'
+        })
+    output$index_notes <- renderText({'
+        <br>To know which countries are included in the indexes categories, check out the map layers.
+        <br><br>
+        <strong>Notes on the indexes</strong>
+        <br>Development index:
+        <br><small><p>
+        The categories are intended for statistical convenience and do not necessarily express a 
+        judgement about the stage reached by a particular country or area in the development process.</p></small>
+        Income index:
+        <br><small><p>
+        The country classification by income level is based on June 2018 GNI per capita from the World Bank.</p></small>
+        <br>'})
     
     counter <- reactiveValues(connect = 0)
     
