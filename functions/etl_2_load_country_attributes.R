@@ -13,7 +13,7 @@ load_country_attributes <- function(force_download = FALSE, force_format = FALSE
     flog.info('Downloading raw migration data') 
     
     url <- 'https://www.un.org/en/development/desa/population/migration/data/estimates2/data/UN_MigrantStockByOriginAndDestination_2019.xlsx'
-    download.file(url, './data')
+    download.file(url, '../data')
   }
   
   

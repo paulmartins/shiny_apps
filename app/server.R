@@ -10,9 +10,11 @@
 all_functions <- list.files('../functions/')
 sapply(file.path('../functions', all_functions), source)
 
-un_data <- fread('../data/un_migration.csv')
-un_attr <- fread('../data/un_attributes.csv')
-un_attr <- calculate_chord_max(un_attr, un_data_original=un_data)
+un_migration_flow <- fread('../data/un_migration.csv')
+un_country_attr <- fread('../data/un_attributes.csv')
+un_country_attr <- calculate_chord_max(un_country_attr, un_migration_flow)
+
+countries_poly <- readOGR(dsn=path.expand("../data/polygons/"), layer = 'countries_complete')
 
 
 server = function(input, output, session) {
@@ -21,21 +23,20 @@ server = function(input, output, session) {
         leaflet() %>% 
             addTiles() %>%
             addSearchOSM() %>%
-            addTiles(group = "OSM (default)") %>%
-            addProviderTiles("CartoDB.Positron", group = "CartoDB") %>%
-            addProviderTiles("GeoportailFrance.parcels", group = "Cadaster") %>%
-            addProviderTiles("Esri.WorldImagery", group = "Satellite")
+            addTiles(group="OSM (default)") %>%
+            addProviderTiles("CartoDB.Positron", group="CartoDB") #%>%
+            #addProviderTiles("Esri.WorldImagery", group="Satellite")
     })
     
     # Reactive expression for the data subsetted to what the user selected
-    filtered_un_data_year <- reactive({
-        un_data[year == input$year,]
+    filtered_un_migration_by_year <- reactive({
+        un_migration_flow[year == input$year]
     })
     
     output$chord_diagram <- renderPlot({
-        render_chord(un_data=filtered_un_data_year(), 
-                     un_attr, 
-                     variable=input$select_chord_variable)
+        render_chord(  un_migration=filtered_un_migration_by_year()
+                     , un_country_attr=un_country_attr
+                     , variable=input$select_chord_variable)
     })
     output$chord_title <- renderText({'
         <h3>International population migration flows</h3>
@@ -57,7 +58,7 @@ server = function(input, output, session) {
         The country classification by income level is based on June 2018 GNI per capita from the World Bank.</p></small>
         <br>'})
     
-    counter <- reactiveValues(connect = 0)
+    counter <- reactiveValues(connect=0)
     
     observeEvent(counter$connect == 0, {
         inputSweetAlert(
