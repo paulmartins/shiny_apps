@@ -91,9 +91,11 @@ ui = gentelellaPageCustom(
                         , align="left"
                         , radioButtons(
                               inputId='select_map_variable'
-                            , label="Variable"
+                            , label="Color Variable"
                             , inline=FALSE
-                            , choices=c("Development index", "Income index", "Region")
+                            , choices=c("Development index", "Income index", "Region", 
+                                        "Number of migrants (% total population)",
+                                        "Percentage of females migrants")
                             , selected='Development index'
                             )
                         , checkboxInput("legend", "Show legend", TRUE)

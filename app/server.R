@@ -20,10 +20,10 @@ server = function(input, output, session) {
     
     output$map <- renderLeaflet({
         leaflet() %>% 
-            setView(lng=-0.127758, lat=51.507351, zoom=02) %>%
-            addTiles() %>%
+            #setView(lng=-0.127758, lat=51.507351, zoom=02) %>%
+            setView(lng=-0, lat=0, zoom=02) %>%
             addSearchOSM() %>%
-            addTiles(options=tileOptions(minZoom=02, maxZoom=16)) %>%
+            addTiles(options=tileOptions(minZoom=01, maxZoom=16)) %>%
             addProviderTiles("CartoDB.Positron", group="CartoDB") %>%
             addProviderTiles("OpenStreetMap.Mapnik", group="OpenStreetMap") %>%
             addProviderTiles("Esri.WorldImagery", group="Satellite") 
