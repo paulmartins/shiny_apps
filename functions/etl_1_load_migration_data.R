@@ -73,12 +73,12 @@ load_migration_data <- function(force_download = FALSE, force_format = FALSE){
     # 2.5 Writing formatted data ------------------------------------------------------------------
     flog.info('Writing formatted data')
 
-    fwrite(un_data, './data/un_migration.csv')
+    fwrite(un_data, '../data/un_migration_flow.csv')
   }
   
   # 3 Read formatted data -----------------------------------------------------------------------
   flog.info('Read formatted data')
   
-  return(fread('../data/un_migration.csv'))
+  return(fread('../data/un_migration_flow.csv'))
 }
 

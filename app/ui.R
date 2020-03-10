@@ -69,7 +69,6 @@ ui = gentelellaPageCustom(
     , sidebar=gentelellaSidebar(
           tags$script(src="https://kit.fontawesome.com/6b09341d85.js")
         , site_title=p(icon("globe"), span("UN Migration"))
-        , uiOutput("profile")
         , sidebarDate()
         , sidebarMenu(
               sidebarItem("Maps", tabName="maps", icon=icon('map'))
@@ -87,61 +86,76 @@ ui = gentelellaPageCustom(
               tabItem(
                   tabName="maps"
                 , fluidRow(
-                      tags$style(type = "text/css", "#map {height: calc(100vh - 80px) !important;}")
-                    , leafletOutput("map")
-                    )
+                      column(
+                          width=3
+                        , align="left"
+                        , radioButtons(
+                              inputId='select_map_variable'
+                            , label="Variable"
+                            , inline=FALSE
+                            , choices=c("Development index", "Income index", "Region")
+                            , selected='Development index'
+                            )
+                        , checkboxInput("legend", "Show legend", TRUE)
+                        )
+                    , column(
+                          width=9
+                        , tags$style(type = "text/css", "#map {height: calc(100vh - 80px) !important;}")
+                        , leafletOutput("map")
+                        )
+                )
                 )
               # 3.2 World -------------------------------------------------------------------------
             , tabItem(
                   tabName="world"
                 , fluidRow(
-                    tabsetPanel(
-                          type="pills"
-                        , shiny::tabPanel(
-                              "Migration flows"
-                            , tabName="world_migr_flow"
-                            , tags$style(HTML(" .nav {margin-bottom:20px;}"))
-                            , column(
-                                  width=4
-                                , align="left"
-                                , htmlOutput(outputId='chord_title')
-                                , sliderInput(
-                                      inputId="year"
-                                    , label="Year"
-                                    , min=1990
-                                    , max=2019
-                                    , value=2019
-                                    , step=5
-                                    , ticks= TRUE
-                                    , sep=""
-                                    , animate=animationOptions(
-                                          interval=900
-                                        , loop=FALSE
-                                        , playButton=icon("play")
-                                        , pauseButton = icon("pause")
-                                        )
-                                    )
-                                , radioButtons(
-                                      inputId='select_chord_variable'
-                                    , label="Variable"
-                                    , inline=FALSE
-                                    , choices=c("Development index", "Income index", "Region")
-                                    , selected='Development index'
-                                    )
-                                , htmlOutput(outputId='chord_index_notes')
-                                )
-                            , column(
-                                  width=8
-                                , align="left"
-                                , plotOutput("chord_diagram", height=700)
+                    column(
+                          width=4
+                        , align="left"
+                        , htmlOutput(outputId='chord_title')
+                        , sliderInput(
+                            inputId="year"
+                            , label="Year"
+                            , min=1990
+                            , max=2019
+                            , value=2019
+                            , step=5
+                            , ticks= TRUE
+                            , sep=""
+                            , animate=animationOptions(
+                                  interval=900
+                                , loop=FALSE
+                                , playButton=icon("play")
+                                , pauseButton = icon("pause")
                                 )
                             )
-                        , shiny::tabPanel("Age and Gender", 
-                                        tabName="world_age_gender",
-                                        tags$style(HTML(" .nav {margin-bottom:20px;}")))
+                        , radioButtons(
+                              inputId='select_chord_variable'
+                            , label="Variable"
+                            , inline=FALSE
+                            , choices=c("Development index", "Income index", "Region")
+                            , selected='Development index'
+                            )
+                        , htmlOutput(outputId='chord_index_notes')
+                        )
+                    , column(
+                          width=8
+                        , align="left"
+                        , tabsetPanel(
+                              type="pills"
+                            , shiny::tabPanel(
+                                  "Migration flows"
+                                , tabName="world_migr_flow"
+                                , plotOutput("chord_diagram", height=700)
+                                )
+                            , shiny::tabPanel(
+                                  "Age and Gender"
+                                , tabName="world_age_gender"
+                                )
+                            )
                         )
                     )
-                )
+            )
               # 3.3 Country -----------------------------------------------------------------------
             , tabItem(
                   tabName="country"

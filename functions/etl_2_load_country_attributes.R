@@ -111,12 +111,12 @@ load_country_attributes <- function(force_download = FALSE, force_format = FALSE
     # 2.6 Writing formatted data ------------------------------------------------------------------
     flog.info('Writing formatted data')
     
-    fwrite(un_attr, './data/un_attributes.csv')
+    fwrite(un_attr, '../data/un_country_attributes.csv')
   }
   
   # 3 Read formatted data -----------------------------------------------------------------------
   flog.info('Read formatted data')
   
-  return(fread('../data/un_attributes.csv'))
+  return(fread('../data/un_country_attributes.csv'))
 }
 

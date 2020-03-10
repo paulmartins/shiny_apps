@@ -3,15 +3,15 @@ library(ComplexHeatmap)
 library(gridBase)
 
 
-# TO BUILD PLOT LOCALLY
-# un_migration <- load_migration_data()
+# TO BUILD PLOT LOCALLY (but without legend, issue with viewport)
+# un_migration_flow <- load_migration_data()
 # un_country_attr <- load_country_attributes()
-# un_country_attr <- calculate_chord_max(un_attr, un_data_original=un_data)
-# un_migration <- un_migration[year == 2019]
-# render_chord(un_migration, un_country_attr) 
+# un_country_attr <- calculate_chord_max(un_country_attr, un_migration_flow)
+# un_migration_flow <- un_migration_flow[year == 2019]
+# render_chord(un_migration_flow, un_country_attr, loc=TRUE) 
 
 
-render_chord <- function(un_migration, un_country_attr, variable="Region"){
+render_chord <- function(un_migration, un_country_attr, variable="Region", loc=FALSE){
   
   # grab variable column name, colors and max values from the input variable arg
   var <- tolower(gsub(pattern="[\\s|-]", "_", variable, perl=TRUE))
@@ -60,7 +60,7 @@ render_chord <- function(un_migration, un_country_attr, variable="Region"){
                         , just=c("center", "top")
                         )
   pushViewport(circle_vp)
-  par(omi=gridOMI(), new=TRUE)
+  par(omi=ifelse(rep(loc, 4), rep(0,4), gridOMI()), new=TRUE)
   circlize_plot(plot_data_tibble, metadata)
   #grid.rect(gp=gpar(fill="blue"))
   upViewport()
