@@ -68,7 +68,7 @@ ui = gentelellaPageCustom(
     
     , sidebar=gentelellaSidebar(
           tags$script(src="https://kit.fontawesome.com/6b09341d85.js")
-        , site_title=p(icon("globe"), span("UN Migration"))
+        , site_title=p(icon("globe"), span("UN Migration Dashboard"))
         , sidebarDate()
         , sidebarMenu(
               sidebarItem("Maps", tabName="maps", icon=icon('map'))
@@ -91,14 +91,25 @@ ui = gentelellaPageCustom(
                         , align="left"
                         , radioButtons(
                               inputId='select_map_variable'
-                            , label="Color Variable"
+                            , label="Variable"
                             , inline=FALSE
                             , choices=c("Development index", "Income index", "Region", 
                                         "Number of migrants (% total population)",
-                                        "Percentage of females migrants")
+                                        "Number of females migrants (% of migrants)",
+                                        "Number of refugees (% total population)")
                             , selected='Development index'
                             )
-                        , checkboxInput("legend", "Show legend", TRUE)
+                        ,  sliderInput(
+                            inputId="map_year"
+                            , label="Year"
+                            , min=1990
+                            , max=2019
+                            , value=2019
+                            , step=5
+                            , ticks= TRUE
+                            , sep=""
+                        )
+                        , prettySwitch("legend", "Show legend", value=TRUE, slim=TRUE, status='primary')
                         )
                     , column(
                           width=9

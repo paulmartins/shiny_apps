@@ -90,7 +90,7 @@ load_country_yearly_attributes <- function(force_download = FALSE, force_format 
     
     final_table <- percent_migrant[percent_f_migrant][total_refugees][total_pop]
     final_table[, total_pop := total_pop/1000]
-    final_table[, percent_refugees := total_refugees/(total_pop*1e06)]
+    final_table[, percent_refugees := 100*total_refugees/(total_pop*1e06)]
     
     # 2.6 Writing formatted data ------------------------------------------------------------------
     flog.info('Writing formatted data')

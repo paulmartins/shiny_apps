@@ -46,7 +46,7 @@ render_chord <- function(un_migration, un_country_attr, variable="Region", loc=F
                             ][value >0]
   plot_data_tibble <- dplyr::as_tibble(plot_data[, .(var_from, var_to, value=value/1e06)])
   metadata <- unique(plot_data[, .(var_from, col1=color, max_chord=max_chord)])
-  metadata <- metadata[, order1:=.I]
+  metadata <- metadata[, order1:=as.numeric(var_from)][order(order1)]
   metadata <- dplyr::as_tibble(metadata)
   
   # Make the plot and its legend in a nice viewport
@@ -77,7 +77,7 @@ render_chord <- function(un_migration, un_country_attr, variable="Region", loc=F
                        , type="grid"
                        , direction="horizontal"
                        , nrow=ceiling(length(metadata$var_from)/3)
-                       , labels=metadata$var_from
+                       , labels=as.character(metadata$var_from)
                        , labels_gp=gpar(fontsize=12, col='#6B8594')
                        , title=variable
                        , title_position="topleft"
@@ -110,7 +110,7 @@ circlize_plot <- function(plot_data_tibble, metadata){
                , order=metadata$var_from
                , grid.col=metadata$col1
                , annotationTrack="grid"
-               , transparency=0.25
+               , transparency=0.15
                , annotationTrackHeight=c(0.05, 0.1)
                , direction.type=c("diffHeight", "arrows")
                , link.arr.type="big.arrow"
