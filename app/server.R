@@ -7,8 +7,6 @@
 #    http://shiny.rstudio.com/
 #
 
-all_functions <- list.files('../functions/')
-sapply(file.path('../functions', all_functions), source)
 
 un_migration_flow <- fread('../data/un_migration_flow.csv')
 un_country_attr <- setDT(readRDS(file = '../data/un_country_attributes.rds'))
@@ -28,44 +26,32 @@ server = function(input, output, session) {
     
     # Reactive expression for the data subsetted to what the user selected
     format_map_data <- reactive({
-        if(input$select_map_variable %in% c("Development index", "Income index", "Region")){
-            var <- tolower(gsub(pattern="[\\s|-]", "_", input$select_map_variable, perl=TRUE))
-            map_data <- un_country_attr[, .(code, var=get(var))]
-        } else{
-            map_data <- un_country_yearly_attr[year==input$map_year]
-            selected_var <- switch(  input$select_map_variable
-                                   , "Number of migrants (% total population)"='percent_migrant'
-                                   , "Number of females migrants (% of migrants)"='percent_f_migrant'
-                                   , "Number of refugees (% total population)"="percent_refugees")
-            map_data <- map_data[,.(code, var=get(selected_var))]
+        if(!input$select_map_variable %in% c("development_index", "income_index", "region")){
+            map_data <- un_country_yearly_attr[year==input$map_year]}
+        else{
+            map_data <- un_country_attr
         }
+        map_data <- map_data[, .(code, var=get(input$select_map_variable))]
+        map_data <- sp::merge(countries_poly, map_data, by.x='code', by.y='code')
         # reorder in the same as polygons
-        map_data[match(countries_poly$code, map_data$code)]
+        # map_data[match(countries_poly$code, map_data$code)]
+        map_data
     })
     
     colorpal <- reactive({
-        if(input$select_map_variable %in% c("Development index", "Income index", "Region")){
-            var <- tolower(gsub(pattern="[\\s|-]", "_", input$select_map_variable, perl=TRUE))
-            selected_color <- switch(  var
-                                     , "income_index"='income_color'
-                                     , "development_index"='development_color'
-                                     , "reg_color")
-            palette_table <- unique(un_country_attr[,.(var = get(var), col=get(selected_color))])
-            palette <- colorFactor(  palette=palette_table$col
-                                   , domain=palette_table$col
+        if(input$select_map_variable %in% c("development_index", "income_index", "region")){
+            palette_table <- unique(un_country_attr[,.(var = get(input$select_map_variable))])
+            palette <- colorFactor(  palette=get_chord_colors(variable=input$select_map_variable, value=palette_table$var)
+                                   , domain=palette_table$var
                                    , levels=palette_table$var
                                    , ordered=TRUE)
         } else{
-            selected_var <- switch(  input$select_map_variable
-                                     , "Number of migrants (% total population)"='percent_migrant'
-                                     , "Number of females migrants (% of migrants)"='percent_f_migrant'
-                                     , "Number of refugees (% total population)"="percent_refugees")
             selected_bins <- switch(  input$select_map_variable
-                                     , "Number of migrants (% total population)"=c(0,1,5,10,20,100)
-                                     , "Number of females migrants (% of migrants)"=c(0,40,45,50,55,100)
-                                     , "Number of refugees (% total population)"=c(0,0.15,0.5,1,5,100))
-            palette <- colorBin(  palette=colorRampPalette(c('#c8e5ff', "#2A3F54"))(5)
-                                     , domain=format_map_data()$var
+                                     , "percent_migrant"=c(0,1,5,10,20,100)
+                                     , "percent_f_migrant"=c(0,40,45,50,55,100)
+                                     , "percent_refugees"=c(0,0.15,0.5,1,5,100))
+            palette <- colorBin(  palette=single_hue_colors(5)
+                                     , domain=unique(format_map_data()$var)
                                      , bins = selected_bins
                                      )
         }
@@ -77,10 +63,10 @@ server = function(input, output, session) {
     # should be managed in its own observer.
     observe({
         pal <- colorpal()
-        leafletProxy("map", data = countries_poly) %>%
+        leafletProxy("map", data = format_map_data()) %>%
             clearMarkerClusters() %>%
             clearShapes() %>%
-            addPolygons(fillColor = pal(format_map_data()$var),
+            addPolygons(fillColor = ~pal(var),
                         fillOpacity = 1,
                         stroke = TRUE,
                         color = "#666",
@@ -92,7 +78,10 @@ server = function(input, output, session) {
                             color = "#000",
                             dashArray = "",
                             fillOpacity = 0.75,
-                            bringToFront = TRUE)) %>%
+                            bringToFront = TRUE),
+                        popup =  ~paste0(
+                            "<strong><font color='#2A3F54'>",country,"</font></strong>", 
+                            "<br>",input$select_map_variable,": <em>",var,"</em>")) %>%
             addLayersControl(
                 baseGroups = c("CartoDB", "OpenStreetMap", "Satellite"),
                 overlayGroups = c("Polygons"),
@@ -101,13 +90,13 @@ server = function(input, output, session) {
     })
     # Use a separate observer to recreate the legend as needed.
     observe({
-        proxy <- leafletProxy("map", data = countries_poly)
+        proxy <- leafletProxy("map", data = format_map_data())
         proxy %>% clearControls()
         if (input$legend) {
             pal <- colorpal()
             proxy %>% addLegend( position="bottomleft"
                                 , pal=pal
-                                , values = format_map_data()$var
+                                , values = ~var
                                 , opacity = 1
                                 , title = input$select_map_variable
                                 , na.label = "No info"

@@ -72,69 +72,72 @@ load_country_attributes <- function(force_download = FALSE, force_format = FALSE
     flog.info('Removing unused rows and cols')
     
     un_attr <- un_attr[code < 900]
-    un_attr[,Notes:=NULL]
+    un_attr[, Notes:=NULL]
     
     
-    # 2.4 Create development and income index -----------------------------------------------------
-    flog.info('Create development and income index')
+    # 2.4 Create development index ----------------------------------------------------------------
+    flog.info('Create development index')
     
-    un_attr[(`More Developed Regions`), `:=`(development_index='More developed', development_color='#1abb9c')]
-    un_attr[(`Less Developed Regions`), `:=`(development_index='Less developed', development_color='#007c8f')]
-    un_attr[(`Least developed countries`), `:=`(development_index='Least developed', development_color='#2a3f54')]
-    if(nrow(un_attr[is.na(development_index)])>0) flog.warn(paste('Found',nrow(un_attr[is.na(development_index)]), 
-                                                              'countries without develop_index'))
-    un_attr[is.na(development_index), `:=`(development_index='No info', development_color='#ffffff')]
-    un_attr[,development_index:=factor(development_index, levels=c('More developed', 'Less developed', 'Least developed', 'No info'))]
+    un_attr[(`More Developed Regions`), development_index:='More developed']
+    un_attr[(`Less Developed Regions`), development_index:='Less developed']
+    un_attr[(`Least developed countries`), development_index:='Least developed']
+    if(nrow(un_attr[is.na(development_index)])>0) {
+      flog.warn(paste('Found', nrow(un_attr[is.na(development_index)]), 'countries without develop_index'))
+    }
+    un_attr[is.na(development_index), development_index:='No info']
     un_attr[,c('More Developed Regions', 'Less Developed Regions', 'Least developed countries'):=NULL]
     
     
-    un_attr[(`High-income Countries`), `:=`(income_index='High-income', income_color='#1abb9c')]
-    un_attr[(`Upper-middle-income Countries`), `:=`(income_index='Upper-middle-income', income_color='#a1decc')]
-    un_attr[(`Lower-middle-income Countries`), `:=`(income_index='Lower-middle-income', income_color='#9099a6')]
-    un_attr[(`Low-income Countries`), `:=`(income_index='Low-income', income_color='#2a3f54')]
-    if(nrow(un_attr[is.na(income_index)])>0) flog.warn(paste('Found',nrow(un_attr[is.na(income_index)]), 
-                                                              'countries without income_index'))
-    un_attr[is.na(income_index), `:=`(income_index='No info', income_color='#ffffff')]
-    un_attr[,income_index:=factor(income_index, levels=c(  'High-income'
-                                                         , 'Upper-middle-income'
-                                                         , 'Lower-middle-income'
-                                                         , 'Low-income'
-                                                         , 'No info'))]
+    # 2.5 Create income index ---------------------------------------------------------------------
+    flog.info('Create income index')
+    
+    un_attr[(`High-income Countries`), income_index:='High-income']
+    un_attr[(`Upper-middle-income Countries`), income_index:='Upper-middle-income']
+    un_attr[(`Lower-middle-income Countries`), income_index:='Lower-middle-income']
+    un_attr[(`Low-income Countries`), income_index:='Low-income']
+    if(nrow(un_attr[is.na(income_index)])>0){
+      flog.warn(paste('Found',nrow(un_attr[is.na(income_index)]), 'countries without income_index'))
+    }
+    un_attr[is.na(income_index), income_index:='No info']
     un_attr[,c('High-income Countries', 'Low-income Countries', 'Middle-income Countries',
                'Upper-middle-income Countries', 'Lower-middle-income Countries', 'Sub-Saharan Africa'):=NULL]
 
     
+    # 2.6 Converting to factors -------------------------------------------------------------------
+    flog.info('Converting to factors')
     
-    # 2.5 Defining colors -------------------------------------------------------------------------
-    flog.info('Defining colors')
+    un_attr[, development_index:=factor(development_index
+                                        , levels=c(  'More developed'
+                                                   , 'Less developed'
+                                                   , 'Least developed'
+                                                   , 'No info'
+                                                   )
+                                        )
+            ]
+    un_attr[, income_index:=factor(income_index
+                                   , levels=c(  'High-income'
+                                              , 'Upper-middle-income'
+                                              , 'Lower-middle-income'
+                                              , 'Low-income'
+                                              , 'No info'
+                                              )
+                                   )
+            ]
+    un_attr[, region:=factor(region, levels=c(  "EUROPE"
+                                              , "NORTHERN AMERICA"
+                                              , "LATIN AMERICA AND THE CARIBBEAN"
+                                              , "SUB-SAHARAN AFRICA"
+                                              , "NORTHERN AFRICA AND WESTERN ASIA"
+                                              , "CENTRAL AND SOUTHERN ASIA"
+                                              , "EASTERN AND SOUTH-EASTERN ASIA"
+                                              , "OCEANIA"
+                                              )
+                             )
+            ]
     
-    #region_cols <- data.table(region=unique(un_attr$region), 
-    #                          reg_color=brewer.pal(n = length(unique(un_attr$region)), name = "Set1"))
-    region_cols <- data.table(region=unique(un_attr$region), reg_color='')
-    region_cols[region=="EUROPE",                           reg_color:='#79c725'] #0A9FFF 
-    region_cols[region=="NORTHERN AMERICA",                 reg_color:='#4daecf'] #3A9400
-    region_cols[region=="LATIN AMERICA AND THE CARIBBEAN",  reg_color:='#3a57bf'] #FF8E00
-    region_cols[region=="SUB-SAHARAN AFRICA",               reg_color:='#7328b6'] #00E17B
-    region_cols[region=="NORTHERN AFRICA AND WESTERN ASIA", reg_color:='#dd3371'] #2A3F54
-    region_cols[region=="CENTRAL AND SOUTHERN ASIA",        reg_color:='#f2823a'] #C92918
-    region_cols[region=="EASTERN AND SOUTH-EASTERN ASIA",   reg_color:='#f6c137'] #FFE500
-    region_cols[region=="OCEANIA",                          reg_color:='#ffff2d'] #700FFF
-    
-    setkey(un_attr, region)
-    setkey(region_cols, region)
-    un_attr <- un_attr[region_cols]
-    un_attr[,region:=factor(region, levels=c("EUROPE"
-                                             ,"NORTHERN AMERICA"
-                                             ,"LATIN AMERICA AND THE CARIBBEAN"
-                                             ,"SUB-SAHARAN AFRICA"
-                                             ,"NORTHERN AFRICA AND WESTERN ASIA"
-                                             ,"CENTRAL AND SOUTHERN ASIA"
-                                             ,"EASTERN AND SOUTH-EASTERN ASIA"
-                                             ,"OCEANIA"))]
-    
-    # 2.6 Writing formatted data ------------------------------------------------------------------
+    # 2.7 Writing formatted data ------------------------------------------------------------------
     flog.info('Writing formatted data')
-    
+    # need to use RDS as data.table::fwrite will loose the factor columns
     saveRDS(un_attr, '../data/un_country_attributes.rds')
   }
   

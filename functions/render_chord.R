@@ -8,18 +8,12 @@ library(gridBase)
 # un_country_attr <- load_country_attributes()
 # un_country_attr <- calculate_chord_max(un_country_attr, un_migration_flow)
 # un_migration_flow <- un_migration_flow[year == 2019]
+# source('../functions/color_mapping.R')
 # render_chord(un_migration_flow, un_country_attr, loc=TRUE) 
 
 
-render_chord <- function(un_migration, un_country_attr, variable="Region", loc=FALSE){
-  
-  # grab variable column name, colors and max values from the input variable arg
-  var <- tolower(gsub(pattern="[\\s|-]", "_", variable, perl=TRUE))
-  selected_color <- switch(  var
-                           , "income_index"='income_color'
-                           , "development_index"='development_color'
-                           , "reg_color")
-  selected_max <- switch(  var
+render_chord <- function(un_migration, un_country_attr, variable="region", loc=FALSE){
+  selected_max <- switch(  variable
                          , "income_index"='income_max_chord'
                          , "development_index"='development_max_chord'
                          , "region_max_chord")
@@ -27,11 +21,11 @@ render_chord <- function(un_migration, un_country_attr, variable="Region", loc=F
   # merge variable from country attribute into migration data
   setkey(un_migration, country_to_code)
   setkey(un_country_attr, code)
-  un_migration <- un_migration[un_country_attr[, .(code, var_to=get(var))]]
+  un_migration <- un_migration[un_country_attr[, .(code, var_to=get(variable))]]
   setkey(un_migration, country_from_code)
   un_migration <- un_migration[un_country_attr[, .(  code
-                                                   , var_from=get(var)
-                                                   , col=get(selected_color)
+                                                   , var_from=get(variable)
+                                                   , col=get_chord_colors(variable=variable, values=get(variable))
                                                    , max_chord=get(selected_max)
                                                    )
                                                ]
@@ -79,10 +73,10 @@ render_chord <- function(un_migration, un_country_attr, variable="Region", loc=F
                        , nrow=ceiling(length(metadata$var_from)/3)
                        , labels=as.character(metadata$var_from)
                        , labels_gp=gpar(fontsize=12, col='#6B8594')
-                       , title=variable
-                       , title_position="topleft"
-                       , title_gp=gpar(fontsize=14, fontface="bold", col='#6B8594')
-                       , title_gap=unit(3, "mm")
+                       #, title=variable
+                       #, title_position="topleft"
+                       #, title_gp=gpar(fontsize=14, fontface="bold", col='#6B8594')
+                       #, title_gap=unit(3, "mm")
                        , legend_gp=gpar(fill=metadata$col1)
                        ) 
   lgd_list <- packLegend(lgd_points, direction="horizontal")

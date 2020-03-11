@@ -7,6 +7,9 @@ library(leaflet.extras)
 
 options(shiny.jquery.version=1)
 
+all_functions <- list.files('../functions/')
+sapply(file.path('../functions', all_functions), source)
+
 
 ui = gentelellaPageCustom(
       title="UN Migration Dashboard"
@@ -89,16 +92,16 @@ ui = gentelellaPageCustom(
                       column(
                           width=3
                         , align="left"
-                        , radioButtons(
+                        , prettyRadioButtons(
                               inputId='select_map_variable'
                             , label="Variable"
                             , inline=FALSE
-                            , choices=c("Development index", "Income index", "Region", 
-                                        "Number of migrants (% total population)",
-                                        "Number of females migrants (% of migrants)",
-                                        "Number of refugees (% total population)")
-                            , selected='Development index'
+                            , shape='curve'
+                            , thick=TRUE
+                            , choiceNames=c("Development index", "Income index", "Region", "Number of migrants ⚥", "Number of migrants ♀", "Number of refugees ⚥")
+                            , choiceValues = c('development_index', 'income_index', 'region', 'percent_migrant', 'percent_f_migrant', 'percent_refugees')
                             )
+                        , chooseSliderSkin(skin="Modern", color='#73879C')
                         ,  sliderInput(
                             inputId="map_year"
                             , label="Year"
@@ -126,6 +129,15 @@ ui = gentelellaPageCustom(
                           width=4
                         , align="left"
                         , htmlOutput(outputId='chord_title')
+                        , prettyRadioButtons(
+                          inputId='select_chord_variable'
+                          , label="Variable"
+                          , choiceNames=c("Development index", "Income index", "Region")
+                          , choiceValues=c('development_index', 'income_index', 'region')
+                          , shape='curve'
+                          , thick=TRUE
+                          , inline=FALSE
+                        )
                         , sliderInput(
                             inputId="year"
                             , label="Year"
@@ -141,13 +153,6 @@ ui = gentelellaPageCustom(
                                 , playButton=icon("play")
                                 , pauseButton = icon("pause")
                                 )
-                            )
-                        , radioButtons(
-                              inputId='select_chord_variable'
-                            , label="Variable"
-                            , inline=FALSE
-                            , choices=c("Development index", "Income index", "Region")
-                            , selected='Development index'
                             )
                         , htmlOutput(outputId='chord_index_notes')
                         )
