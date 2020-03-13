@@ -4,12 +4,12 @@ library(shinyWidgets)
 library(shinyjs)
 library(leaflet)
 library(leaflet.extras)
+library(plotly)
 
 options(shiny.jquery.version=1)
 
 all_functions <- list.files('../functions/')
 sapply(file.path('../functions', all_functions), source)
-
 
 ui = gentelellaPageCustom(
       title="UN Migration Dashboard"
@@ -85,25 +85,28 @@ ui = gentelellaPageCustom(
     
     , body=gentelellaBody(
         tabItems(
+          
               # 3.1 Maps --------------------------------------------------------------------------
+              
               tabItem(
                   tabName="maps"
                 , fluidRow(
                       column(
                           width=3
                         , align="left"
+                        , htmlOutput(outputId='map_title')
                         , prettyRadioButtons(
                               inputId='select_map_variable'
                             , label="Variable"
                             , inline=FALSE
                             , shape='curve'
                             , thick=TRUE
-                            , choiceNames=c("Development index", "Income index", "Region", "Number of migrants ⚥", "Number of migrants ♀", "Number of refugees ⚥")
-                            , choiceValues = c('development_index', 'income_index', 'region', 'percent_migrant', 'percent_f_migrant', 'percent_refugees')
+                            , choiceValues=main_map_radio_box_values
+                            , choiceNames=radio_box_mapping(main_map_radio_box_values)
                             )
                         , chooseSliderSkin(skin="Modern", color='#73879C')
                         ,  sliderInput(
-                            inputId="map_year"
+                            inputId="main_map_year"
                             , label="Year"
                             , min=1990
                             , max=2019
@@ -113,27 +116,31 @@ ui = gentelellaPageCustom(
                             , sep=""
                         )
                         , prettySwitch("legend", "Show legend", value=TRUE, slim=TRUE, status='primary')
+                        , htmlOutput(outputId='migrant_notes')
                         )
                     , column(
                           width=9
-                        , tags$style(type = "text/css", "#map {height: calc(100vh - 80px) !important;}")
-                        , leafletOutput("map")
+                        , tags$style(type = "text/css", "#main_map {height: calc(100vh - 80px) !important;}")
+                        , leafletOutput("main_map")
                         )
                 )
                 )
+              
               # 3.2 World -------------------------------------------------------------------------
+              
             , tabItem(
                   tabName="world"
                 , fluidRow(
-                    column(
+                    useShinyjs()
+                    , column(
                           width=4
                         , align="left"
                         , htmlOutput(outputId='chord_title')
                         , prettyRadioButtons(
                           inputId='select_chord_variable'
                           , label="Variable"
-                          , choiceNames=c("Development index", "Income index", "Region")
-                          , choiceValues=c('development_index', 'income_index', 'region')
+                          , choiceNames=radio_box_mapping(world_radio_box_values)
+                          , choiceValues=world_radio_box_values
                           , shape='curve'
                           , thick=TRUE
                           , inline=FALSE
@@ -154,7 +161,10 @@ ui = gentelellaPageCustom(
                                 , pauseButton = icon("pause")
                                 )
                             )
-                        , htmlOutput(outputId='chord_index_notes')
+                        , prettySwitch("show_mini_map", "Show Mini Map", value=FALSE, slim=TRUE, status='primary')
+                        , leafletOutput("mini_map", height = 275)
+                       # , htmlOutput(outputId='know_country')
+                        , htmlOutput(outputId='index_notes')
                         )
                     , column(
                           width=8

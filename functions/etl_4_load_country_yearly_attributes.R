@@ -28,7 +28,7 @@ load_country_yearly_attributes <- function(force_download = FALSE, force_format 
                             , id.vars=c('country', 'code')
                             , variable.name='year'
                             , value.name='percent_migrant')
-    percent_migrant[,percent_migrant:=as.numeric(percent_migrant)]
+    percent_migrant[,percent_migrant:=round(as.numeric(percent_migrant),1)]
 
     # 2.2 Get percentage of female migrant --------------------------------------------------------
     
@@ -45,7 +45,7 @@ load_country_yearly_attributes <- function(force_download = FALSE, force_format 
                               , id.vars=c('country', 'code')
                               , variable.name='year'
                               , value.name='percent_f_migrant')
-    percent_f_migrant[,percent_f_migrant:=as.numeric(percent_f_migrant)]
+    percent_f_migrant[,percent_f_migrant:=round(as.numeric(percent_f_migrant),1)]
     
     # 2.3 Get number of refugee -------------------------------------------------------------------
     
@@ -90,7 +90,9 @@ load_country_yearly_attributes <- function(force_download = FALSE, force_format 
     
     final_table <- percent_migrant[percent_f_migrant][total_refugees][total_pop]
     final_table[, total_pop := total_pop/1000]
-    final_table[, percent_refugees := 100*total_refugees/(total_pop*1e06)]
+    final_table[percent_migrant!=0, percent_refugees := round(100*total_refugees/(total_pop*1e06*percent_migrant/100),2)]
+    final_table[is.na(percent_migrant), percent_refugees:=0]
+    final_table[, country := countrycode(code, origin = 'un', destination = 'country.name')]
     
     # 2.6 Writing formatted data ------------------------------------------------------------------
     flog.info('Writing formatted data')
