@@ -62,6 +62,6 @@ create_un_migration_flow <- function(){
   # 6 Writing formatted data ----------------------------------------------------------------------
   flog.info('Saving un_country_attr in data/un_migration_flow.csv')
 
-  fwrite(un_data, '../data/un_migration_flow.csv')
+  fwrite(un_migration_flow, '../data/un_migration_flow.csv')
 }
 

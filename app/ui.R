@@ -45,7 +45,7 @@ ui = gentelellaPageCustom(
                       notifItem(
                           title="UN migration data"
                         , img="https://pngimg.com/uploads/un/un_PNG20.png"
-                        , ref="https://www.unmigration.org"
+                        , ref="https://www.un.org/en/development/desa/population/migration/data/estimates2/estimates19.asp"
                         , "External link to data source"
                         )
                     , notifItem(

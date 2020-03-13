@@ -1,10 +1,10 @@
+#' @description Add the columns region_max_chord | income_max_chord | development_max_chord to un_country_attr
 
-# un_data <- load_migration_data()
-# un_attr <- load_country_attributes()
-
-calculate_chord_max <- function(un_country_attr, un_migration_flow){
+add_chord_max_to_un_country_attr <- function(){
+  un_migration_flow <- fread('../data/un_migration_flow.csv')
+  un_country_attr <- setDT(readRDS(file = '../data/un_country_attributes.rds'))
   # loop over each attributes
-  for(var in c('region', 'income_index', 'development_index')){
+  for(var in c('development_index', 'income_index', 'region')){
     flog.info(paste('Calculating max over years for', var))
     un_flow_copy <- copy(un_migration_flow)
     setkey(un_flow_copy, country_to_code)
@@ -25,5 +25,5 @@ calculate_chord_max <- function(un_country_attr, un_migration_flow){
     setkeyv(un_country_attr, var)
     un_country_attr <- un_country_attr[max_mat]
   }
-  return(un_country_attr)
+  saveRDS(un_country_attr, '../data/un_country_attributes.rds')
 }  

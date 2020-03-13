@@ -4,7 +4,13 @@ R Shiny application to navigate through the data distributed by the United Natio
 
 ## ETL
 
-Here is what you need to run in your local R console in order to get the data from the online repositories and transform it into a format that is more convenient to use inside the app.
+To run in your local R console in order to get the data from the online repositories and transform it into a format that is more convenient to use inside the app.
+
+```{r}
+setwd('app')
+all_functions <- list.files('../functions/')
+sapply(file.path('../functions', all_functions), source)
+```
 
 ### Extract
 
@@ -23,23 +29,21 @@ create_un_country_attr()
 create_un_country_yearly_attr()
 create_un_country_yearly_age_attr()
 create_un_migration_flow()
+add_chord_max_to_un_country_attr()
 
 un_attr <- setDT(readRDS('../data/un_country_attributes.rds'))
 create_countries_polygons(un_attr)
-
-
 ```
 
 ### Load
 
-At the very start of the `app/server.R` file, load all the data
+The data is loaded at the very start of the `app/server.R`
 
 ```{r}
 un_country_attr <- setDT(readRDS(file='../data/un_country_attributes.rds'))
 un_country_yearly_attr <- fread('../data/un_country_yearly_attributes.csv')
 un_country_yearly_age_attr <- fread('../data/un_country_yearly_age_attributes.csv')
 un_migration_flow <- fread('../data/un_migration_flow.csv')
-
 countries_poly <- readOGR(dsn=path.expand("../data/polygons/"), layer='countries')
 ```
 

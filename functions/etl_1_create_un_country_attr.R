@@ -126,6 +126,7 @@ create_un_country_attr <- function(){
   # 8 Writing formatted data ----------------------------------------------------------------------
   flog.info('Saving un_country_attr in data/un_country_attributes.rds')
   
+  if(!dir.exists('../data')) dir.create('../data')
   # need to use RDS as data.table::fwrite will loose the factor columns
   saveRDS(un_country_attr, '../data/un_country_attributes.rds')
 }

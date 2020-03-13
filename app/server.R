@@ -7,11 +7,12 @@
 #    http://shiny.rstudio.com/
 #
 
+# download_raw_data()
+
 un_migration_flow <- fread('../data/un_migration_flow.csv')
 un_country_attr <- setDT(readRDS(file = '../data/un_country_attributes.rds'))
-un_country_attr <- calculate_chord_max(un_country_attr, un_migration_flow)
 un_country_yearly_attr <- fread('../data/un_country_yearly_attributes.csv')
-countries_poly <- readOGR(dsn=path.expand("../data/polygons/"), layer='countries_complete')
+countries_poly <- readOGR(dsn=path.expand("../data/polygons/"), layer='countries')
 
 
 server = function(input, output, session) {
