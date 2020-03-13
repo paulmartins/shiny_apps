@@ -25,12 +25,14 @@ ui = gentelellaPageCustom(
                 , label_type=""
                 , list(
                       notifItem(
-                          title="Guy Abel chord digram article"
+                          title="Guy Abel"
                         , ref="https://guyabel.com/post/animated-directional-chord-diagrams/"
+                        , "Chord diagram article"
                         )
                     , notifItem(
-                          title="Mark Edmondson's Shiny theme"
+                          title="Mark Edmondson"
                         , ref="http://code.markedmondson.me/gentelellaShiny/"
+                        , "Shiny Gentellela theme"
                         )
                     )
                 )
@@ -42,13 +44,23 @@ ui = gentelellaPageCustom(
                 , list(
                       notifItem(
                           title="UN migration data"
-                        , img="https://cdn.freebiesupply.com/logos/large/2x/un-1-logo-png-transparent.png"
-                        , ref="www.unmigration.org"
-                        , "International migrant stock"
+                        , img="https://pngimg.com/uploads/un/un_PNG20.png"
+                        , ref="https://www.unmigration.org"
+                        , "External link to data source"
                         )
                     , notifItem(
-                        title="Country Polygons")
+                      title="OECD migration data"
+                      , img="https://banner2.cleanpng.com/20180410/tpe/kisspng-oecd-d-8-organization-for-economic-cooperation-eco-economic-5acd14583c4cd3.555230361523389528247.jpg"
+                      , ref="https://www.oecd.org/els/mig/keystat.htm"
+                      , "External link to data source"
+                      )
+                    , notifItem(
+                      title="Countries polygons"
+                      , img="https://toppng.com/uploads/preview/if-you-live-in-country-outside-of-the-united-states-world-map-simple-transparent-background-11563161268uvzbxkn7ob.png"
+                      , ref="https://ec.europa.eu/eurostat/cache/GISCO/distribution/v2/countries/download/"
+                      , "External link to data source"
                     )
+                )
                 )
             , notif(
                   id="github_link"
@@ -163,7 +175,6 @@ ui = gentelellaPageCustom(
                             )
                         , prettySwitch("show_mini_map", "Show Mini Map", value=FALSE, slim=TRUE, status='primary')
                         , leafletOutput("mini_map", height = 275)
-                       # , htmlOutput(outputId='know_country')
                         , htmlOutput(outputId='index_notes')
                         )
                     , column(

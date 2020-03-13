@@ -175,6 +175,9 @@ server = function(input, output, session) {
                      , un_country_attr=un_country_attr
                      , variable=input$select_chord_variable)
     })
+    output$gender_age <- renderPlot({
+        #render_age_gender()
+    })
     output$chord_title <- renderText({'
         <h3>International population migration flows</h3>
         <br>The chord diagram represents the international migration patterns as vectors from origin 
