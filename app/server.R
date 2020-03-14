@@ -185,15 +185,22 @@ server = function(input, output, session) {
         render_age_gender(  age_data_plot=filtered_un_country_yearly_age_by_year()
                           , un_country_attr=un_country_attr
                           , variable=input$select_chord_variable)
-        #render_age_gender()
     })
-    output$chord_title <- renderText({'
-        <h3>International population migration flows</h3>
-        <br>The chord diagram represents the international migration patterns as vectors from origin 
-        to destination by development index, income index or regions.
-        The unit of the scale for the vectors widths is in million people.
-        <br><br>'
-        })
+    output$world_title <- renderText({
+        if(input$world_tabs=="Migration flows"){'
+            <h3>International population migration flows</h3>
+            <br>The chord diagram represents the international migration patterns as vectors from origin
+            to destination by development index, income index or regions.
+            The unit of the scale for the vectors widths is in million people.
+            <br><br>'
+        } else{
+            '
+            <h3>Demography</h3>
+            <br>The pyramid graphs represent the number of male and female migrants by age group as a percentage 
+            of the total international number of migrants.
+            <br><br>'
+        }
+    })
     output$index_notes <- renderText({'
         <strong>Notes on the indexes</strong>
         <br>Development index:

@@ -147,7 +147,7 @@ ui = gentelellaPageCustom(
                     , column(
                           width=4
                         , align="left"
-                        , htmlOutput(outputId='chord_title')
+                        , htmlOutput(outputId='world_title')
                         , prettyRadioButtons(
                           inputId='select_chord_variable'
                           , label="Variable"
@@ -181,14 +181,15 @@ ui = gentelellaPageCustom(
                           width=8
                         , align="left"
                         , tabsetPanel(
-                              type="pills"
+                              id='world_tabs'
+                            , type="pills"
                             , shiny::tabPanel(
                                   "Migration flows"
                                 , tabName="world_migr_flow"
                                 , plotOutput("chord_diagram", height=700)
                                 )
                             , shiny::tabPanel(
-                                  "Age and Gender"
+                                  "Demography"
                                 , tabName="world_age_gender"
                                 , plotlyOutput('gender_age_plot', height=700)
                                 )

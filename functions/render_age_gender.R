@@ -5,8 +5,9 @@ render_age_gender <- function(age_data_plot, un_country_attr, variable){
 
   age_data_plot <- age_data_plot[un_country_attr[, .(var=get(variable), code)]]
   # age_data_plot <- age_data_plot[un_country_attr[, .(code,var=get('region'))]]
-  age_data_plot <- age_data_plot[, .(  percent_m=round(100*sum(migrant_male, na.rm=TRUE)/sum(pop_male, na.rm=TRUE), 2)
-                                     , percent_f=round(100*sum(migrant_female, na.rm=TRUE)/sum(pop_female, na.rm=TRUE), 2))
+  age_data_plot <- age_data_plot[, total:=sum(migrant_male+migrant_female, na.rm=TRUE), .(var)]
+  age_data_plot <- age_data_plot[, .(  percent_m=round(100*sum(migrant_male, na.rm=TRUE)/total, 2)
+                                     , percent_f=round(100*sum(migrant_female, na.rm=TRUE)/total, 2))
                                  , .(var, age_group)]
   age_data_plot <- age_data_plot[!is.na(age_group)]
   
