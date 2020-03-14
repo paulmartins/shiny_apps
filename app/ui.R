@@ -190,6 +190,7 @@ ui = gentelellaPageCustom(
                             , shiny::tabPanel(
                                   "Age and Gender"
                                 , tabName="world_age_gender"
+                                , plotlyOutput('gender_age_plot', height=700)
                                 )
                             )
                         )

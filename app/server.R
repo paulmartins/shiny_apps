@@ -10,8 +10,10 @@
 # download_raw_data()
 
 un_migration_flow <- fread('../data/un_migration_flow.csv')
-un_country_attr <- setDT(readRDS(file = '../data/un_country_attributes.rds'))
+un_country_attr <- setDT(readRDS(file='../data/un_country_attributes.rds'))
 un_country_yearly_attr <- fread('../data/un_country_yearly_attributes.csv')
+un_country_yearly_age_attr <- setDT(readRDS(file='../data/un_country_yearly_age_attributes.rds'))
+
 countries_poly <- readOGR(dsn=path.expand("../data/polygons/"), layer='countries')
 
 
@@ -107,7 +109,7 @@ server = function(input, output, session) {
             addProviderTiles("Esri.WorldImagery", group="Satellite") 
     })
     
-    # 2 Chord diagram -----------------------------------------------------------------------------
+    # 2 World -------------------------------------------------------------------------------------
     # 2.1 Reactives -------------------------------------------------------------------------------
     format_mini_map_data <- reactive({
         mini_map_data <- un_country_attr[, .(code, var=get(input$select_chord_variable), country)]
@@ -128,6 +130,9 @@ server = function(input, output, session) {
     })
     filtered_un_migration_by_year <- reactive({
         un_migration_flow[year == input$year]
+    })
+    filtered_un_country_yearly_age_by_year <- reactive({
+        un_country_yearly_age_attr[year == input$year]
     })
     # 2.2 Observers -------------------------------------------------------------------------------
     observeEvent(input$show_mini_map, {
@@ -176,7 +181,10 @@ server = function(input, output, session) {
                      , un_country_attr=un_country_attr
                      , variable=input$select_chord_variable)
     })
-    output$gender_age <- renderPlot({
+    output$gender_age_plot <- renderPlotly({
+        render_age_gender(  age_data_plot=filtered_un_country_yearly_age_by_year()
+                          , un_country_attr=un_country_attr
+                          , variable=input$select_chord_variable)
         #render_age_gender()
     })
     output$chord_title <- renderText({'

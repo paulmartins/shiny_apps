@@ -4,6 +4,7 @@ library(countrycode)
 library(futile.logger)
 library(stringr)
 library(RColorBrewer)
+library(rCharts)
 
 library(rgdal)
 library(sf)
