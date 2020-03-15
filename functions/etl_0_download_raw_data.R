@@ -12,6 +12,9 @@ library(stringi)
 library(rgeos)
 library(lwgeom)
 
+library(networkD3)
+library(htmlwidgets)
+
 
 download_raw_data <- function(){
   if(!dir.exists('../data_raw')) dir.create('../data_raw')

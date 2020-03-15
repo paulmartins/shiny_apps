@@ -11,6 +11,9 @@ options(shiny.jquery.version=1)
 all_functions <- list.files('../functions/')
 sapply(file.path('../functions', all_functions), source)
 
+un_country_attr <- setDT(readRDS(file='../data/un_country_attributes.rds'))
+
+
 ui = gentelellaPageCustom(
       title="UN Migration Dashboard"
       
@@ -83,7 +86,7 @@ ui = gentelellaPageCustom(
     
     , sidebar=gentelellaSidebar(
           tags$script(src="https://kit.fontawesome.com/6b09341d85.js")
-        , site_title=p(icon("globe"), span("UN Migration Dashboard"))
+        , site_title=p(icon("globe"), span("Migration Dashboard"))
         , sidebarDate()
         , sidebarMenu(
               sidebarItem("Maps", tabName="maps", icon=icon('map'))
@@ -109,7 +112,7 @@ ui = gentelellaPageCustom(
                         , htmlOutput(outputId='map_title')
                         , prettyRadioButtons(
                               inputId='select_map_variable'
-                            , label="Variable"
+                            , label="UN Variable"
                             , inline=FALSE
                             , shape='curve'
                             , thick=TRUE
@@ -149,10 +152,11 @@ ui = gentelellaPageCustom(
                         , align="left"
                         , htmlOutput(outputId='world_title')
                         , prettyRadioButtons(
-                          inputId='select_chord_variable'
-                          , label="Variable"
+                            inputId='select_chord_variable'
+                          , label="Group by Variable"
                           , choiceNames=radio_box_mapping(world_radio_box_values)
                           , choiceValues=world_radio_box_values
+                          , selected=world_radio_box_values[3]
                           , shape='curve'
                           , thick=TRUE
                           , inline=FALSE
@@ -173,7 +177,7 @@ ui = gentelellaPageCustom(
                                 , pauseButton = icon("pause")
                                 )
                             )
-                        , prettySwitch("show_mini_map", "Show Mini Map", value=FALSE, slim=TRUE, status='primary')
+                        , prettySwitch("show_mini_map", "Show map legend", value=TRUE, slim=TRUE, status='primary')
                         , leafletOutput("mini_map", height = 275)
                         , htmlOutput(outputId='index_notes')
                         )
@@ -197,15 +201,83 @@ ui = gentelellaPageCustom(
                         )
                     )
             )
-              # 3.3 Country -----------------------------------------------------------------------
+            # 3.3 Country -----------------------------------------------------------------------
             , tabItem(
                   tabName="country"
-                , jumbotron(
-                    title="Hello, world!",
-                    "This is a simple hero unit, a simple jumbotron-style
-                    component for calling extra attention to featured
-                    content or information."
+                , fluidRow(
+                    column(
+                        width=4
+                      , align="left"
+                      , htmlOutput(outputId='country_title')
+                      , pickerInput(  inputId="main_country"
+                                    , label="Country"
+                                    , choices=un_country_attr[order(country)]$code
+                                    , multiple=FALSE
+                                    , selected=826
+                                    , choicesOpt=list(content=sprintf('<span><img src="%s"> %s</span>'
+                                                                      , un_country_attr[order(country)]$flags_img
+                                                                      , un_country_attr[order(country)]$country))
+                                    , options = list(`live-search`=TRUE)
+                                    )
+                      , sliderInput(  inputId="country_year"
+                                    , label="Year"
+                                    , min=1990
+                                    , max=2019
+                                    , value=2019
+                                    , step=5
+                                    , ticks= TRUE
+                                    , sep=""
+                                    , animate=animationOptions(
+                                        interval=600
+                                      , loop=FALSE
+                                      , playButton=icon("play")
+                                      , pauseButton = icon("pause")
+                                    )
+                                    )
+                      , fluidRow( 
+                          column(
+                              width=4
+                            , numericInput(  inputId="top_n_in"
+                                           , label="No. origin countries"
+                                           , value=10
+                                           , min=1
+                                           , max=30
+                                           , step=1
+                                           )
+                            , prettySwitch("show_others_in", "Show Others", value=TRUE, slim=TRUE, status='primary')
+                            )
+                        , column(
+                            width=4
+                          , numericInput(  inputId="top_n_out"
+                                         , label="No. destination countries"
+                                         , value=10
+                                         , min=1
+                                         , max=30
+                                         , step=1
+                                         )
+                          , prettySwitch("show_others_out", "Show Others", value=TRUE, slim=TRUE, status='primary')
+                          )
+                        )
                     )
+                    , column(
+                        width=8
+                      , align="left"
+                      , tabsetPanel(
+                        id='country_tabs'
+                        , type="pills"
+                        , shiny::tabPanel(
+                          "Migration flows"
+                          , tabName="country_migr_flow"
+                          , sankeyNetworkOutput("sankey_diagram", height=700)
+                        )
+                        , shiny::tabPanel(
+                          "Demography"
+                          , tabName="country_age_gender"
+                          #, plotlyOutput('gender_age_plot', height=700)
+                        )
+                      )
+                    )
+                  )
                 )
               # 3.4 Table -------------------------------------------------------------------------
             , tabItem(

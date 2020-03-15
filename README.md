@@ -30,6 +30,7 @@ create_un_country_yearly_attr()
 create_un_country_yearly_age_attr()
 create_un_migration_flow()
 add_chord_max_to_un_country_attr()
+add_net_migration_to_un_country_yearly_attr()
 
 un_attr <- setDT(readRDS('../data/un_country_attributes.rds'))
 create_countries_polygons(un_attr)

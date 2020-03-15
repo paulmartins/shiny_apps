@@ -24,20 +24,32 @@ server = function(input, output, session) {
         map_data <- un_country_yearly_attr[year==input$main_map_year, .(code, var=get(input$select_map_variable), country)]
         map_data[, popup:=paste0(
             "<strong><font color='#2A3F54'>", country,"</font></strong>", 
-            "<br>", radio_box_mapping(input$select_map_variable), ": <em>", var, " %</em>")]
+            "<br>", radio_box_mapping(input$select_map_variable), ": <em>", var,
+            ifelse(input$select_map_variable!='net_migration'," %</em>","</em>"))]
         map_data <- map_data[, .(code, var, popup)]
         map_data <- sp::merge(countries_poly, map_data, by.x='code', by.y='code')
         map_data
     })
     main_map_color_palette <- reactive({
         selected_bins <- switch(  input$select_map_variable
-                                     , "percent_migrant"=c(0, 2, 5, 10, 15, 20, 40, 100)
-                                     , "percent_f_migrant"=c(0, 40, 45, 48, 50, 52, 55, 100)
-                                     , "percent_refugees"=c(0, 0.1, 0.5, 1, 5, 10, 50, 1000))
-        colorBin(  palette=single_hue_colors(7)
+                                , "percent_migrant"=c(0, 2, 5, 10, 15, 20, 40, 100)
+                                , "percent_f_migrant"=c(0, 40, 45, 48, 50, 52, 55, 100)
+                                , "percent_refugees"=c(0, 0.1, 0.5, 1, 5, 10, 50, 1000)
+                                , "net_migration"=c(-10000, -100, -50, -10, 0, 10, 50, 100, 10000))
+        selected_palette <- switch(input$select_map_variable
+                                   , "net_migration"=diverging_hue_colors(8)
+                                   , single_hue_colors(7)
+                                   )
+        colorBin(  palette=selected_palette
                  , domain=unique(format_main_map_data()$var)
                  , bins = selected_bins
                  )
+    })
+    main_map_label_format <- reactive({
+        switch(input$select_map_variable
+               , "net_migration"=labelFormat(between=' &#10145; ', transform=function(x){x[which(x>500)] <- 500; x[which(x< -500)] <- -500; x})
+               , labelFormat(suffix=' %', transform=function(x){x[which(x>100)] <- 100; x})
+               )
     })
     # 1.2 Observers -------------------------------------------------------------------------------
     # Incremental changes to the map should be performed in an observer. 
@@ -64,22 +76,21 @@ server = function(input, output, session) {
             addLayersControl(
                 baseGroups = c("CartoDB", "OpenStreetMap", "Satellite"),
                 overlayGroups = c("Polygons"),
-                options = layersControlOptions(collapsed = TRUE)
+                options = layersControlOptions(collapsed=TRUE)
             )
     })
     observe({
-        proxy <- leafletProxy("main_map", data = format_main_map_data())
+        proxy <- leafletProxy("main_map", data=format_main_map_data())
         proxy %>% clearControls()
         if (input$legend) {
             pal <- main_map_color_palette()
             proxy %>% addLegend( position="bottomleft"
                                 , pal=pal
-                                , values = ~var
-                                , opacity = 1
-                                , na.label = "No info"
-                                , title = radio_box_mapping(input$select_map_variable)
-                                , labFormat = labelFormat(suffix = ' %'
-                                                          ,transform = function(x){x[which(x>100)] <- 100; x})
+                                , values=~var
+                                , opacity=1
+                                , na.label="No info"
+                                , title=radio_box_mapping(input$select_map_variable)
+                                , labFormat=main_map_label_format()
             )
         }
     })
@@ -88,16 +99,20 @@ server = function(input, output, session) {
         <h3>Maps explorer</h3>'
     })
     output$migrant_notes <- renderText({paste0('
-        <strong>Notes on the migrants metrics</strong>
-        <br>', radio_box_mapping(main_map_radio_box_values[1]), ':
+        <strong>Notes on the metrics displayed</strong>
+        <br>', radio_box_mapping(main_map_radio_box_values[1]), '
         <br><small><p>
         Total number of migrants in a country given as a percentage of its population at mid-year.</p></small>
-        ', radio_box_mapping(main_map_radio_box_values[2]), ':
+        ', radio_box_mapping(main_map_radio_box_values[2]), '
         <br><small><p>
         Total number of female migrants in a country as a percentage of the total number of migrants.</p></small>
-        ', radio_box_mapping(main_map_radio_box_values[2]), ':
+        ', radio_box_mapping(main_map_radio_box_values[3]), '
         <br><small><p>
         Total number of refugees (including asylum-seekers) in a country as a percentage of the total number of migrants</p></small>
+        ', radio_box_mapping(main_map_radio_box_values[4]), '
+        <br><small><p>
+        Difference between immigrants and emigrants divided by the population at mid-year (more details 
+        <a href="https://en.wikipedia.org/wiki/Net_migration_rate" target="_blank">here</a>)
         <br>')
     })
     output$main_map <- renderLeaflet({
@@ -136,7 +151,7 @@ server = function(input, output, session) {
     })
     # 2.2 Observers -------------------------------------------------------------------------------
     observeEvent(input$show_mini_map, {
-        toggle("mini_map")
+        shinyjs::toggle("mini_map", condition=input$show_mini_map)
     })
     observe({
         pal <- mini_map_color_palette()
@@ -196,12 +211,13 @@ server = function(input, output, session) {
         } else{
             '
             <h3>Demography</h3>
-            <br>The pyramid graphs represent the number of male and female migrants by age group as a percentage 
-            of the total international number of migrants.
+            <br>The pyramid graphs represent the number of male and female migrants in each age groups as a percentage 
+            of the total international number of migrants by development index, income index or regions.
             <br><br>'
         }
     })
     output$index_notes <- renderText({'
+        <br>
         <strong>Notes on the indexes</strong>
         <br>Development index:
         <br><small><p>
@@ -211,4 +227,52 @@ server = function(input, output, session) {
         <br><small><p>
         The country classification by income level is based on June 2018 GNI per capita from the World Bank.</p></small>
         <br>'})
+    
+    # 3 Country -----------------------------------------------------------------------------------
+    # 3.1 Reactives -------------------------------------------------------------------------------
+    format_sankey_data <- reactive({
+        un_data_graph_to <- un_migration_flow[year==input$country_year & country_to_code==input$main_country & value>0
+                                                   , .(country_to, country_from, value)][order(value)]
+        un_data_graph_from <- un_migration_flow[year==input$country_year & country_from_code==input$main_country & value>0
+                                                     , .(country_to, country_from, value)][order(value)]
+        rbind(un_data_graph_to, un_data_graph_from)
+    })
+    # 3.2 Observers -------------------------------------------------------------------------------
+    observe({
+        max_top_n_in <- format_sankey_data()[,.N,country_to][N>1]$N
+        max_top_n_out <- format_sankey_data()[,.N,country_from][N>1]$N
+        is_in_value_too_big <- input$top_n_in >= max_top_n_in
+        is_out_value_too_big <- input$top_n_out >= max_top_n_out
+        updateNumericInput(session, "top_n_in", max=max_top_n_in, value=ifelse(is_in_value_too_big, max_top_n_in, input$top_n_in))
+        updateNumericInput(session, "top_n_out", max=max_top_n_out, value=ifelse(is_out_value_too_big, max_top_n_out, input$top_n_out))
+        if(is_in_value_too_big){
+            updatePrettySwitch(session, 'show_others_in', value = FALSE)
+            shinyjs::disable('show_others_in')
+        }
+        else {
+            shinyjs::enable('show_others_in')
+        }
+        if(is_out_value_too_big){
+            updatePrettySwitch(session, 'show_others_out', value = FALSE)
+            shinyjs::disable('show_others_out')
+        } else{
+            shinyjs::enable('show_others_out')
+        }
+    })
+
+    # 3.3 Outputs ---------------------------------------------------------------------------------
+    output$sankey_diagram <- renderSankeyNetwork({
+        render_sankey(format_sankey_data()
+                      , top_n_in=input$top_n_in
+                      , top_n_out=input$top_n_out
+                      , show_others_in=input$show_others_in
+                      , show_others_out=input$show_others_out)
+    })
+    output$country_title <- renderText({'
+        <h3>Country profile</h3>
+        <br>Details plots here
+        <br><br>'
+    })
+    
+    
 }

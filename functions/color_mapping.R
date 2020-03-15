@@ -38,6 +38,9 @@ region_colors <- function(region){
 single_hue_colors <- function(n){
   colorRampPalette(c('#c8e5ff', "#2A3F54"))(n)
 }
+diverging_hue_colors <- function(n){
+  colorRampPalette(c('#de425b', '#f1f1f1', "#488f31"))(n)
+}
 
 get_chord_colors <- function(variable, values){
   FUN <- switch( variable

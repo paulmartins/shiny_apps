@@ -122,6 +122,10 @@ create_un_country_attr <- function(){
                                    )
                   ]
   
+  un_country_attr[, flags_img:=paste0(  'https://www.countryflags.io/'
+                                      , tolower(countrycode(code, origin='un', destination='iso2c'))
+                                      , '/flat/24.png')]
+  
   
   # 8 Writing formatted data ----------------------------------------------------------------------
   flog.info('Saving un_country_attr in data/un_country_attributes.rds')
