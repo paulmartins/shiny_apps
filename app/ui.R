@@ -294,27 +294,27 @@ ui = gentelellaPageCustom(
                         width='100%'
                       , height=220
                       , box_title="Statisics"
-                      , list(total_pop=valueBox(textOutput('total_pop') 
+                      , list(total_pop=gentelellaShiny::valueBox(textOutput('total_pop') 
                                                       , width=4
                                                       , description=htmlOutput('total_pop_desc') 
                                                       , title='Total population'
                                                       , icon=icon('male')
                                                       )
-                             ,total_immigrant=valueBox(textOutput('total_immigrant') 
+                             ,total_immigrant=gentelellaShiny::valueBox(textOutput('total_immigrant') 
                                                     , width=4
                                                     , description=htmlOutput('total_immigrant_desc') 
                                                     , title='Immigrants'
                                                     , icon=icon('compress-arrows-alt')
                                                     )
-                             ,total_emigrant=valueBox(textOutput('total_emigrant') 
+                             ,total_emigrant=gentelellaShiny::valueBox(textOutput('total_emigrant') 
                                                      , width=4
                                                      , description=htmlOutput('total_emigrant_desc') 
                                                      , title='Emigrants'
                                                      , icon=icon('expand-arrows-alt')
-                             )
-                             ,net_migration_rate=valueBox(  textOutput('net_migration') 
+                                                     )
+                             ,net_migration_rate=gentelellaShiny::valueBox(textOutput('net_migration')
                                                          , width=4
-                                                         , description=htmlOutput('net_migration_desc') 
+                                                         , description=htmlOutput('net_migration_desc')
                                                          , title='Net migration rate'
                                                          , icon=icon('exchange-alt')
                                                          )
@@ -353,9 +353,37 @@ ui = gentelellaPageCustom(
               # 3.5 Table -------------------------------------------------------------------------
             
             , tabItem(
-                tabName="table"
-                )
+                 tabName="table"
+               , tabsetPanel(
+                    id='tables'
+                    , type="pills"
+                    , shiny::tabPanel(
+                       "Country Attributes"
+                      , tabName="table_country_attr"
+                      , br()
+                      , dataTableOutput('table_country_attr')
+                    )
+                    , shiny::tabPanel(
+                       "Country yearly attributes"
+                      , tabName="table_country_yearly_attr"
+                      , br()
+                      , dataTableOutput('table_country_yearly_attr')
+                    )
+                   , shiny::tabPanel(
+                      "Country yearly age attributes"
+                      , tabName="table_country_yearly_age_attr"
+                      , br()
+                      , dataTableOutput('table_country_yearly_age_attr')
+                    )
+                   , shiny::tabPanel(
+                     "Migration flow"
+                     , tabName="table_migration_flow"
+                     , br()
+                     , dataTableOutput('table_migration_flow')
+                   )
+               )
             )
+        )
         )
     , footer=gentelellaFooter(
           leftText="Paul Martins, 2020"

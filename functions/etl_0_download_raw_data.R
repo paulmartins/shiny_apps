@@ -15,7 +15,7 @@ library(lwgeom)
 library(networkD3)
 library(htmlwidgets)
 library(scales)
-
+library(DT)
 
 download_raw_data <- function(){
   if(!dir.exists('../data_raw')) dir.create('../data_raw')

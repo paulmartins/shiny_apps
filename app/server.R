@@ -280,7 +280,7 @@ server = function(input, output, session) {
                       , show_others_out=input$show_others_out)
     })
     output$net_migration <- renderText({
-        label_number_si(accuracy=0.2)(un_country_yearly_attr[year==input$country_year & code==input$main_country, net_migration])
+        label_number_si(accuracy=0.01)(un_country_yearly_attr[year==input$country_year & code==input$main_country, net_migration])
     })
     output$net_migration_desc <- renderText({
         if(input$country_year == 1990){
@@ -302,7 +302,7 @@ server = function(input, output, session) {
         output
     })
     output$total_immigrant <- renderText({
-        label_number_si(accuracy=0.2)(un_country_yearly_attr[year==input$country_year & code==input$main_country, immigrants])
+        label_number_si(accuracy=0.01)(un_country_yearly_attr[year==input$country_year & code==input$main_country, immigrants])
     })
     output$total_immigrant_desc <- renderText({
         if(input$country_year == 1990){
@@ -310,7 +310,7 @@ server = function(input, output, session) {
         } else {
             previous_value <- tail(un_country_yearly_attr[year<input$country_year & code==input$main_country, .(year, immigrants)][order(year)],1)
             current_value <- un_country_yearly_attr[year==input$country_year & code==input$main_country, immigrants]
-            change_diff <- label_number_si(accuracy=0.2)(current_value - previous_value$immigrants)
+            change_diff <- label_number_si(accuracy=0.01)(current_value - previous_value$immigrants)
             if(change_diff>0){
                 output <- sprintf('<p><font color="#1abb9c"> &#9650; %s </font> <em>since %s</em>', change_diff, previous_value$year)
             }
@@ -324,7 +324,7 @@ server = function(input, output, session) {
         output
     })
     output$total_emigrant <- renderText({
-        label_number_si(accuracy=0.2)(un_country_yearly_attr[year==input$country_year & code==input$main_country, emigrants])
+        label_number_si(accuracy=0.01)(un_country_yearly_attr[year==input$country_year & code==input$main_country, emigrants])
     })
     output$total_emigrant_desc <- renderText({
         if(input$country_year == 1990){
@@ -332,7 +332,7 @@ server = function(input, output, session) {
         } else {
             previous_value <- tail(un_country_yearly_attr[year<input$country_year & code==input$main_country, .(year, emigrants)][order(year)],1)
             current_value <- un_country_yearly_attr[year==input$country_year & code==input$main_country, emigrants]
-            change_diff <- label_number_si(accuracy=0.2)(current_value - previous_value$emigrants)
+            change_diff <- label_number_si(accuracy=0.01)(current_value - previous_value$emigrants)
             if(change_diff>0){
                 output <- sprintf('<p><font color="#1abb9c"> &#9650; %s </font> <em>since %s</em>', change_diff, previous_value$year)
             }
@@ -346,7 +346,7 @@ server = function(input, output, session) {
         output
     })
     output$total_pop <- renderText({
-        label_number_si(accuracy=0.2)(un_country_yearly_attr[year==input$country_year & code==input$main_country, total_pop*1e06])
+        label_number_si(accuracy=0.01)(un_country_yearly_attr[year==input$country_year & code==input$main_country, total_pop*1e06])
     })
     output$total_pop_desc <- renderText({
         if(input$country_year == 1990){
@@ -354,7 +354,7 @@ server = function(input, output, session) {
         } else {
             previous_value <- tail(un_country_yearly_attr[year<input$country_year & code==input$main_country, .(year, total_pop)][order(year)],1)
             current_value <- un_country_yearly_attr[year==input$country_year & code==input$main_country, total_pop]
-            change_diff <- label_number_si(accuracy=0.2)(1.e06*(current_value - previous_value$total_pop))
+            change_diff <- label_number_si(accuracy=0.01)(1.e06*(current_value - previous_value$total_pop))
             if(change_diff>0){
                 output <- sprintf('<p><font color="#1abb9c"> &#9650; %s </font> <em>since %s</em>', change_diff, previous_value$year)
             }
@@ -368,4 +368,124 @@ server = function(input, output, session) {
         output
     })
     
+    # 4 Tables ------------------------------------------------------------------------------------
+    output$table_country_attr <- renderDataTable(
+        datatable(un_country_attr[!is.na(country)
+                                  , .(flag=sprintf('<img src="%s">',flags_img)
+                                      , country, code, region, sub_region, development_index, income_index)
+                                  , .(country, code)][
+                                  , .(flag, country, code, region, sub_region, development_index, income_index)]
+           , escape=1 # to render flags as html
+           , filter='top'
+           , extensions=c('Responsive', 'Scroller', 'Buttons')
+           , options=list(
+                 deferRender=TRUE
+               , scrollY=700
+               , scroller=TRUE
+               , columnDefs=list(list(width='10px', targets=1))
+               , dom='Bfrtip'
+               , buttons=c('copy', 'csv', 'excel', 'print')
+               , initComplete=JS(
+                   "function(settings, json) {",
+                   "$(this.api().table().header()).css({'background-color': '#2a3f54', 'color': '#f1f1f1'});",
+                   "}"
+                   )
+               )
+           ) %>%
+            formatStyle(  'region'
+                        , color=styleEqual(  levels(un_country_attr$region)
+                                           , region_colors(levels(un_country_attr$region))
+                                           )
+                        , fontWeight='bold'
+                        )
+        )
+    
+    output$table_country_yearly_attr <- renderDataTable(
+        datatable(un_country_yearly_attr[!is.na(country)
+                                         , .(country=as.factor(country)
+                                             , code
+                                             , year=as.factor(year)
+                                             , percent_migrant=percent_migrant/100
+                                             , percent_f_migrant=percent_f_migrant/100
+                                             , total_refugees
+                                             , total_pop)]
+                  , filter='top'
+                  , extensions=c('Responsive', 'Scroller', 'Buttons')
+                  , options=list(
+                        deferRender=TRUE
+                      , scrollY=700
+                      , scroller=TRUE
+                      , columnDefs=list(list(width='10px', targets=1))
+                      , dom='Bfrtip'
+                      , buttons=c('copy', 'csv', 'excel', 'print')
+                      , initComplete=JS(
+                          "function(settings, json) {",
+                          "$(this.api().table().header()).css({'background-color': '#2a3f54', 'color': '#f1f1f1'});",
+                          "}"
+                          )
+                      )
+                  ) %>%
+            formatStyle(  c('percent_migrant', 'percent_f_migrant')
+                          , target='cell'
+                          , background=styleColorBar(data=c(0,1), color='#c8e5ff')
+                          , backgroundSize = '100% 75%'
+                          , backgroundRepeat = 'no-repeat'
+                          , backgroundPosition = 'center'
+                          )  %>%
+        formatPercentage(c('percent_migrant', 'percent_f_migrant'))
+        )
+    output$table_country_yearly_age_attr <- renderDataTable(
+        datatable(un_country_yearly_age_attr[!is.na(country)
+                                         , .(country=as.factor(country)
+                                             , code
+                                             , year=as.factor(year)
+                                             , age_group=as.factor(age_group)
+                                             , migrant_male
+                                             , migrant_female
+                                             , pop_male
+                                             , pop_female)]
+                  , filter='top'
+                  , extensions=c('Responsive', 'Scroller', 'Buttons')
+                  , options=list(
+                      deferRender=TRUE
+                      , scrollY=700
+                      , scroller=TRUE
+                      , columnDefs=list(list(width='10px', targets=1))
+                      , dom='Bfrtip'
+                      , buttons=c('copy', 'csv', 'excel', 'print')
+                      , initComplete=JS(
+                          "function(settings, json) {",
+                          "$(this.api().table().header()).css({'background-color': '#2a3f54', 'color': '#f1f1f1'});",
+                          "}"
+                      )
+                  )
+        ) 
+    )
+    output$table_migration_flow <- renderDataTable(
+        datatable(un_migration_flow[!is.na(country_from) & !is.na(country_to) & !is.na(value)
+                                    , .(  year=as.factor(year)
+                                        , country_to=as.factor(country_to)
+                                        , country_from=as.factor(country_from)
+                                        , value)]
+                  , filter='top'
+                  , extensions=c('Responsive', 'Scroller', 'Buttons')
+                  , options=list(
+                      deferRender=TRUE
+                      , scrollY=700
+                      , scroller=TRUE
+                      , columnDefs=list(list(width='10px', targets=1))
+                      , dom='Bfrtip'
+                      , buttons=c('copy', 'csv', 'excel', 'print')
+                      , initComplete=JS(
+                          "function(settings, json) {",
+                          "$(this.api().table().header()).css({'background-color': '#2a3f54', 'color': '#f1f1f1'});",
+                          "}"
+                      )
+                  )
+        ) 
+    )
 }
+    
+    
+    
+    
