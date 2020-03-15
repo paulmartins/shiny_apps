@@ -6,7 +6,7 @@ radio_box_mapping <- function(category_values){
     switch(categ
            , "development_index"="Development index"
            , "income_index"="Income index"
-           , "region"="Region"
+           , "region"="SDG Region"
            , "percent_migrant"="Proportion of migrants ⚥"
            , "percent_f_migrant"="Proportion of migrants ♀"
            , "percent_refugees"="Proportion of refugees ⚥"

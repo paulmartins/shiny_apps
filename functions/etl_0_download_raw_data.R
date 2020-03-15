@@ -14,6 +14,7 @@ library(lwgeom)
 
 library(networkD3)
 library(htmlwidgets)
+library(scales)
 
 
 download_raw_data <- function(){

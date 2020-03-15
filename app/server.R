@@ -9,23 +9,24 @@
 
 # download_raw_data()
 
-un_migration_flow <- fread('../data/un_migration_flow.csv')
-un_country_attr <- setDT(readRDS(file='../data/un_country_attributes.rds'))
-un_country_yearly_attr <- fread('../data/un_country_yearly_attributes.csv')
 un_country_yearly_age_attr <- setDT(readRDS(file='../data/un_country_yearly_age_attributes.rds'))
-
 countries_poly <- readOGR(dsn=path.expand("../data/polygons/"), layer='countries')
-
 
 server = function(input, output, session) {
     # 1 Maps --------------------------------------------------------------------------------------
     # 1.1 Reactives -------------------------------------------------------------------------------
     format_main_map_data <- reactive({
         map_data <- un_country_yearly_attr[year==input$main_map_year, .(code, var=get(input$select_map_variable), country)]
-        map_data[, popup:=paste0(
-            "<strong><font color='#2A3F54'>", country,"</font></strong>", 
-            "<br>", radio_box_mapping(input$select_map_variable), ": <em>", var,
-            ifelse(input$select_map_variable!='net_migration'," %</em>","</em>"))]
+        map_data[, popup:=paste0(  '<span>'
+                                   , sprintf('<img src="https://www.countryflags.io/%s/flat/24.png">'
+                                             , tolower(countrycode(code, origin='un', destination='iso2c')))
+                                   , "<strong><font color='#2A3F54'> "
+                                   , country, '</font></strong></span>'
+                                   , "<br>"
+                                   , radio_box_mapping(input$select_map_variable)
+                                   , ": <em>", var
+                                   , ifelse(input$select_map_variable!='net_migration'," %</em>","</em>")
+                                   )]
         map_data <- map_data[, .(code, var, popup)]
         map_data <- sp::merge(countries_poly, map_data, by.x='code', by.y='code')
         map_data
@@ -127,10 +128,19 @@ server = function(input, output, session) {
     # 2 World -------------------------------------------------------------------------------------
     # 2.1 Reactives -------------------------------------------------------------------------------
     format_mini_map_data <- reactive({
-        mini_map_data <- un_country_attr[, .(code, var=get(input$select_chord_variable), country)]
-        mini_map_data[, popup:=paste0(
-                "<strong><font color='#2A3F54'>", country,"</font></strong>", 
-                "<br>", radio_box_mapping(input$select_chord_variable), ": <em>", var, "</em>")]
+        mini_map_data <- un_country_attr[, .(  code
+                                             , var=get(input$select_chord_variable)
+                                             , country
+                                             , flags_img
+                                             )
+                                         ]
+        mini_map_data[, popup:=paste0(  '<span>'
+                                      , sprintf('<img src="%s">',flags_img)
+                                      , "<strong><font color='#2A3F54'> "
+                                      , country, '</font></strong></span>'
+                                      , "<br>"
+                                      , radio_box_mapping(input$select_chord_variable)
+                                      , ": <em>", var, "</em>")]
         mini_map_data <- mini_map_data[, .(code, var, popup)]
         mini_map_data <- sp::merge(countries_poly, mini_map_data, by.x='code', by.y='code')
         mini_map_data
@@ -240,6 +250,7 @@ server = function(input, output, session) {
     # 3.2 Observers -------------------------------------------------------------------------------
     observe({
         max_top_n_in <- format_sankey_data()[,.N,country_to][N>1]$N
+        if(length(max_top_n_in)<1) max_top_n_in <- 0
         max_top_n_out <- format_sankey_data()[,.N,country_from][N>1]$N
         is_in_value_too_big <- input$top_n_in >= max_top_n_in
         is_out_value_too_big <- input$top_n_out >= max_top_n_out
@@ -268,11 +279,93 @@ server = function(input, output, session) {
                       , show_others_in=input$show_others_in
                       , show_others_out=input$show_others_out)
     })
-    output$country_title <- renderText({'
-        <h3>Country profile</h3>
-        <br>Details plots here
-        <br><br>'
+    output$net_migration <- renderText({
+        label_number_si(accuracy=0.2)(un_country_yearly_attr[year==input$country_year & code==input$main_country, net_migration])
     })
-    
+    output$net_migration_desc <- renderText({
+        if(input$country_year == 1990){
+            output <- ''
+        } else {
+            previous_value <- tail(un_country_yearly_attr[year<input$country_year & code==input$main_country, .(year, net_migration)][order(year)],1)
+            current_value <- un_country_yearly_attr[year==input$country_year & code==input$main_country, net_migration]
+            change_diff <- (current_value - previous_value$net_migration)
+            if(change_diff>0){
+                output <- sprintf('<p><font color="#1abb9c"> &#9650; %s </font> <em>since %s</em>', round(change_diff, 1), previous_value$year)
+            }
+            else if(change_diff<0){
+                output <- sprintf('<p><font color="#de425b"> &#9660; %s </font> <em>since %s</em>', round(change_diff, 1), previous_value$year)
+            }
+            else{
+                output <- sprintf('<p><font color="#2a3f54"> &#9654; %s </font> <em>since %s</em>', round(change_diff, 1), previous_value$year)
+            }
+        }
+        output
+    })
+    output$total_immigrant <- renderText({
+        label_number_si(accuracy=0.2)(un_country_yearly_attr[year==input$country_year & code==input$main_country, immigrants])
+    })
+    output$total_immigrant_desc <- renderText({
+        if(input$country_year == 1990){
+            output <- ''
+        } else {
+            previous_value <- tail(un_country_yearly_attr[year<input$country_year & code==input$main_country, .(year, immigrants)][order(year)],1)
+            current_value <- un_country_yearly_attr[year==input$country_year & code==input$main_country, immigrants]
+            change_diff <- label_number_si(accuracy=0.2)(current_value - previous_value$immigrants)
+            if(change_diff>0){
+                output <- sprintf('<p><font color="#1abb9c"> &#9650; %s </font> <em>since %s</em>', change_diff, previous_value$year)
+            }
+            else if(change_diff<0){
+                output <- sprintf('<p><font color="#de425b"> &#9660; %s </font> <em>since %s</em>', change_diff, previous_value$year)
+            }
+            else{
+                output <- sprintf('<p><font color="#2a3f54"> &#9654; %s </font> <em>since %s</em>', change_diff, previous_value$year)
+            }
+        }
+        output
+    })
+    output$total_emigrant <- renderText({
+        label_number_si(accuracy=0.2)(un_country_yearly_attr[year==input$country_year & code==input$main_country, emigrants])
+    })
+    output$total_emigrant_desc <- renderText({
+        if(input$country_year == 1990){
+            output <- ''
+        } else {
+            previous_value <- tail(un_country_yearly_attr[year<input$country_year & code==input$main_country, .(year, emigrants)][order(year)],1)
+            current_value <- un_country_yearly_attr[year==input$country_year & code==input$main_country, emigrants]
+            change_diff <- label_number_si(accuracy=0.2)(current_value - previous_value$emigrants)
+            if(change_diff>0){
+                output <- sprintf('<p><font color="#1abb9c"> &#9650; %s </font> <em>since %s</em>', change_diff, previous_value$year)
+            }
+            else if(change_diff<0){
+                output <- sprintf('<p><font color="#de425b"> &#9660; %s </font> <em>since %s</em>', change_diff, previous_value$year)
+            }
+            else{
+                output <- sprintf('<p><font color="#2a3f54"> &#9654; %s </font> <em>since %s</em>', change_diff, previous_value$year)
+            }
+        }
+        output
+    })
+    output$total_pop <- renderText({
+        label_number_si(accuracy=0.2)(un_country_yearly_attr[year==input$country_year & code==input$main_country, total_pop*1e06])
+    })
+    output$total_pop_desc <- renderText({
+        if(input$country_year == 1990){
+            output <- ''
+        } else {
+            previous_value <- tail(un_country_yearly_attr[year<input$country_year & code==input$main_country, .(year, total_pop)][order(year)],1)
+            current_value <- un_country_yearly_attr[year==input$country_year & code==input$main_country, total_pop]
+            change_diff <- label_number_si(accuracy=0.2)(1.e06*(current_value - previous_value$total_pop))
+            if(change_diff>0){
+                output <- sprintf('<p><font color="#1abb9c"> &#9650; %s </font> <em>since %s</em>', change_diff, previous_value$year)
+            }
+            else if(change_diff<0){
+                output <- sprintf('<p><font color="#de425b"> &#9660; %s </font> <em>since %s</em>', change_diff, previous_value$year)
+            }
+            else{
+                output <- sprintf('<p><font color="#2a3f54"> &#9654; %s </font> <em>since %s</em>', change_diff, previous_value$year)
+            }
+        }
+        output
+    })
     
 }

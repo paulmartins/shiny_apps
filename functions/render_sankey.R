@@ -1,17 +1,18 @@
 
 
-
-
 # un_data_graph <- un_migration_flow
 # un_migration_flow <- fread('../data/un_migration_flow.csv')
-# un_data_graph_to <- un_migration_flow[year==2019 & country_to_code==826 & value>0, .(country_to, country_from, value)][order(value)]
-# un_data_graph_from <- un_migration_flow[year==2019 & country_from_code==826 & value>0, .(country_to, country_from, value)][order(value)]
+# un_data_graph_to <- un_migration_flow[year==2019 & country_to_code==336  & value>0, .(country_to, country_from, value)][order(value)]
+# un_data_graph_from <- un_migration_flow[year==2019 & country_from_code==336  & value>0, .(country_to, country_from, value)][order(value)]
 # un_data_graph <- rbind(un_data_graph_to, un_data_graph_from)
-# render_sankey(un_data_graph, top_n_in=10, top_n_out=13)
+# render_sankey(un_data_graph, top_n_in=0, top_n_out=2, show_others_out=FALSE)
 
-render_sankey <- function(un_data_graph, top_n_in=10, top_n_out=10, show_others_in=TRUE, show_others_out=TRUE){
+render_sankey <- function(un_data_graph, top_n_in=10, top_n_out=10, show_others_in=FALSE, show_others_out=FALSE){
   
   country <- un_data_graph[,.N,country_to][N>1]$country_to
+  if(length(country)<1){
+    country <- un_data_graph[,.N,country_from][N>1]$country_from
+  }
   sankey_data <- rbind(tail(un_data_graph[country_to==country][order(value)], top_n_in),
                        tail(un_data_graph[country_from==country][order(value)], top_n_out))
   
@@ -44,11 +45,13 @@ render_sankey <- function(un_data_graph, top_n_in=10, top_n_out=10, show_others_
   sankey_data$IDcountry_from=match(paste0(sankey_data$country_from,'_in'), nodes$name)-1 
   sankey_data$IDcountry_to=match(paste0(sankey_data$country_to,'_out'), nodes$name)-1
   
-  sankey_data[IDcountry_to==top_n_in+1+add_one_to_index, IDcountry_to:=top_n_in]
-  
   nodes$name <- gsub(pattern='_in', replacement=' ', nodes$name)
   nodes$name <- gsub(pattern='_out', replacement='', nodes$name)
-  nodes$name[top_n_in+2+add_one_to_index] <- ''
+  
+  if(length(unique(sankey_data$IDcountry_from))>1){
+    sankey_data[IDcountry_to==top_n_in+1+add_one_to_index, IDcountry_to:=top_n_in]
+    nodes$name[top_n_in+2+add_one_to_index] <- ''
+  }
 
   # prepare colour scale
   ColourScal ='d3.scaleOrdinal() .range(["#FDE725FF","#B4DE2CFF","#6DCD59FF","#35B779FF","#1F9E89FF","#26828EFF","#31688EFF","#3E4A89FF","#482878FF","#440154FF"])'

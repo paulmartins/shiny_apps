@@ -39,7 +39,19 @@ notifItem <- function(..., title = NULL, date = NULL, img = NULL, ref = NULL) {
         ),
         tags$span(class = "message", ...)
       ),
-      href = ref
+      href = ref,
+      target = '_blank'
     )
+  )
+}
+
+panel_div <- function (class_type='default', panel_title, content, icon) {
+  div(class=sprintf("panel panel-%s", class_type),
+      div(class="panel-heading"
+          , span(icon, strong(class="panel-title", panel_title))
+      )
+      , div(class="panel-body"
+            , HTML(content)
+      )
   )
 }
