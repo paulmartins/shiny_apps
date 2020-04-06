@@ -58,12 +58,12 @@ ui = gentelellaPageCustom(
                         , ref="https://www.un.org/en/development/desa/population/migration/data/estimates2/estimates19.asp"
                         , "External link to data source"
                         )
-                    , notifItem(
-                          title="OECD migration data"
-                        , img="https://banner2.cleanpng.com/20180410/tpe/kisspng-oecd-d-8-organization-for-economic-cooperation-eco-economic-5acd14583c4cd3.555230361523389528247.jpg"
-                        , ref="https://www.oecd.org/els/mig/keystat.htm"
-                        , "External link to data source"
-                        )
+                    # , notifItem(
+                    #       title="OECD migration data"
+                    #     , img="https://banner2.cleanpng.com/20180410/tpe/kisspng-oecd-d-8-organization-for-economic-cooperation-eco-economic-5acd14583c4cd3.555230361523389528247.jpg"
+                    #     , ref="https://www.oecd.org/els/mig/keystat.htm"
+                    #     , "External link to data source"
+                    #     )
                     , notifItem(
                           title="Countries polygons"
                         , img="https://toppng.com/uploads/preview/if-you-live-in-country-outside-of-the-united-states-world-map-simple-transparent-background-11563161268uvzbxkn7ob.png"
@@ -120,11 +120,24 @@ ui = gentelellaPageCustom(
                 , hr()
                 , fluidRow(
                     column(
+                        width=12
+                      , panel_div(  class_type = "default"
+                                  , panel_title = 'Disclaimer'
+                                  , icon=tags$i(class="fas fa-exclamation-circle")
+                                  , content = "This dashboard does not reflect any political belief or ideology of the author. It should rather be regarded as a way to 
+                                                showcase how to incorporate visualisations from different R packages into a single shiny app."
+                                  )
+                      )
+                    )
+                , hr()
+                , fluidRow(
+                    column(
                         width=3
                       , panel_div(  class_type = "default"
                                   , panel_title = 'Map Explorer'
                                   , icon=tags$i(class="far fa-map")
-                                  , content = "Switch between different country-level migration metrics and watch their evolution for the past 30 years"
+                                  , content = "Switch between different country-level migration metrics and watch their evolution for the past 30 years 
+                                               <br>Package: <a href='https://rstudio.github.io/leaflet/'><b>Leaflet</b></a>"
                                   )
                     )
                   , column(
@@ -134,10 +147,11 @@ ui = gentelellaPageCustom(
                                 , icon=tags$i(class="fas fa-globe-europe")
                                 , content = "Demographic metrics and migration flows aggregated at the flollowing levels:
                                               <ul>
-                                                <li><a href='https://unstats.un.org/sdgs/report/2019/regional-groups/'>SDG</a> regions</li>
+                                                <li><a href='https://unstats.un.org/sdgs/report/2019/regional-groups/'><b>Sustainable Development Goal</b> (SDG)</a> regions</li>
                                                 <li>Development index</li>
                                                 <li>Income index</li>
-                                              </ul>"
+                                              </ul>
+                                            Packages: <a href='https://plotly.com/r/'><b>Plotly</b></a>, <a href='https://jokergoo.github.io/circlize_book/book/'><b>Circlize</b></a>"
                                 )
                     )
                   , column(
@@ -145,7 +159,8 @@ ui = gentelellaPageCustom(
                     , panel_div(  class_type = "default"
                                   , panel_title = 'Country Statistics'
                                   , icon=tags$i(class="fas fa-flag")
-                                  , content = "A more detailed view of the net migration rate for each country"
+                                  , content = "A more detailed view of the net migration rate for each country
+                                               <br>Package: <a href='https://christophergandrud.github.io/networkD3/'><b>networkD3</b></a>"
                     )
                   )
                   , column(
@@ -153,7 +168,8 @@ ui = gentelellaPageCustom(
                     , panel_div(  class_type = "default"
                                   , panel_title = 'Tables'
                                   , icon=tags$i(class="fas fa-table")
-                                  , content = "Formatted data tables used to make all the charts"
+                                  , content = "Formatted data tables used to make all the charts
+                                               <br>Package: <a href='https://rstudio.github.io/DT/'><b>DT</b></a>"
                     )
                   )
                 )
