@@ -8,12 +8,12 @@ library(plotly)
 
 options(shiny.jquery.version=1)
 
-all_functions <- list.files('../functions/')
-sapply(file.path('../functions', all_functions), source)
+all_functions <- list.files('./functions/')
+sapply(file.path('./functions', all_functions), source)
 
-un_migration_flow <- fread('../data/un_migration_flow.csv')
-un_country_attr <- setDT(readRDS(file='../data/un_country_attributes.rds'))
-un_country_yearly_attr <- fread('../data/un_country_yearly_attributes.csv')
+un_migration_flow <- fread('./data/un_migration_flow.csv')
+un_country_attr <- setDT(readRDS(file='./data/un_country_attributes.rds'))
+un_country_yearly_attr <- fread('./data/un_country_yearly_attributes.csv')
 
 
 ui = gentelellaPageCustom(

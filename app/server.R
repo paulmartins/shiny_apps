@@ -9,8 +9,8 @@
 
 # download_raw_data()
 
-un_country_yearly_age_attr <- setDT(readRDS(file='../data/un_country_yearly_age_attributes.rds'))
-countries_poly <- readOGR(dsn=path.expand("../data/polygons/"), layer='countries')
+un_country_yearly_age_attr <- setDT(readRDS(file='./data/un_country_yearly_age_attributes.rds'))
+countries_poly <- readOGR(dsn=path.expand("./data/polygons/"), layer='countries')
 
 server = function(input, output, session) {
     # 1 Maps --------------------------------------------------------------------------------------
