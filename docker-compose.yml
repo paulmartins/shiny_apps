@@ -2,7 +2,7 @@ version: "3.0"
 
 services:
   shiny:
-    container_name: shiny
+    container_name: un_migration_img
     # To build the image locally, comment out "image" below, and uncomment
     # "build" and the lines indented under it.
     # image: rocker/shiny
@@ -24,7 +24,7 @@ services:
       # Comment the line below out for initial testing. With it commented out,
       # going to localhost:80 in one's web browser will show a "Welcome to
       # Shiny Server!" diagnostics page.
-      # - './mountpoints/apps:/srv/shiny-server'
+      - './app:/srv/shiny-server'
 
 volumes:
   shiny_logs:

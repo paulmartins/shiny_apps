@@ -56,3 +56,12 @@ The shiny app is composed of 2 files located in the `app/` folder:
 * `server.R` deals with backend changes to update the UI.
 
 ## Docker
+
+The shiny app can be run inside a docker container where the code and data have been copied into.
+
+* Build the docker image: `docker build -t un_migration_img .`
+* Run the app from docker: `docker run -p 80:3838 un_migration_img`
+* Check your browser at the address http://localhost:80/
+
+It is possible to run the app on the docker image without copying the code and data with docker-compose. 
+For that comment out the lines `COPY app/ /srv/shiny-server/` and `RUN chmod 777 /usr/bin/shiny-server.sh` in the Dockerfile, rebuilt the image and finally run `docker-compose up`.
