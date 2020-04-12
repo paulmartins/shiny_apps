@@ -63,9 +63,8 @@ EXPOSE 3838
 
 COPY shiny-server.sh /usr/bin/shiny-server.sh
 
-
 # Comment out to use docker-compose and use the local files on docker
-COPY app/ /srv/shiny-server/
+COPY un_migration/ /srv/shiny-server/
 RUN chmod 777 /usr/bin/shiny-server.sh
 
 CMD ["/usr/bin/shiny-server.sh"]
