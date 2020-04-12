@@ -81,8 +81,8 @@ ui = gentelellaPageCustom(
                     notifItem(
                         title="Dashboard source code"
                         , img="https://www.nicepng.com/png/full/183-1838159_exploring-github-github-octocat.png"
-                        , ref="https://github.com/paulmartins/un_migration"
-                        , "github.com/paulmartins/un_migration"
+                        , ref="https://github.com/paulmartins/shiny_apps/tree/master/un_migration"
+                        , "github.com/paulmartins/shiny_apps"
                         )
                     )
                 )
@@ -145,7 +145,7 @@ ui = gentelellaPageCustom(
                     , panel_div(  class_type = "default"
                                 , panel_title = 'World Statistics'
                                 , icon=tags$i(class="fas fa-globe-europe")
-                                , content = "Demographic metrics and migration flows aggregated at the flollowing levels:
+                                , content = "Demographic metrics and migration flows aggregated at the following levels:
                                               <ul>
                                                 <li><a href='https://unstats.un.org/sdgs/report/2019/regional-groups/'><b>Sustainable Development Goal</b> (SDG)</a> regions</li>
                                                 <li>Development index</li>
