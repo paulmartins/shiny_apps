@@ -115,7 +115,7 @@ server = function(input, output, session) {
         Total number of refugees (including asylum-seekers) in a country as a percentage of the total number of migrants</p></small>
         ', radio_box_mapping(main_map_radio_box_values[4]), '
         <br><small><p>
-        Difference between immigrants and emigrants divided by the population at mid-year (more details 
+        Difference between immigrants and emigrants divided by the population at mid-year per 1,000 people (more details 
         <a href="https://en.wikipedia.org/wiki/Net_migration_rate" target="_blank">here</a>)
         <br>')
     })
