@@ -1,8 +1,6 @@
 [![Docker Build Status](https://img.shields.io/docker/cloud/build/ppjmartins/shiny_apps_img)](https://hub.docker.com/repository/docker/ppjmartins/shiny_apps_img/builds)
-
-[![Docker Auto Build](https://img.shields.io/docker/cloud/automated/ppjmartins/shiny_apps_img)]
-
-[![Docker Pulls](https://img.shields.io/docker/pulls/ppjmartins/shiny_apps_img)]
+![Docker Auto Build](https://img.shields.io/docker/cloud/automated/ppjmartins/shiny_apps_img)
+![Docker Pulls](https://img.shields.io/docker/pulls/ppjmartins/shiny_apps_img)
 
 
 # Docker for R Shiny Apps
